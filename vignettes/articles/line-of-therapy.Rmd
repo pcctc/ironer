@@ -1,0 +1,200 @@
+---
+title: "Line of therapy algorithm"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Overview
+
+The line of therapy (lot) algorithm **approximately** assigns line of therapy based on the 
+logic described below. 
+
+During a manual review process, we have identified situations where
+results of the algorithm do not align with the line of therapy assessment of those with domain 
+expertise.
+
+We are making this algorithm available in the hopes that it can provide a rough approximation,
+but please note it is not gold standard truth. PCCTC is working towards 
+electronic data base updates to more easily and accurately collect line of therapy information.
+The current version of the algorithm is reasonably sufficient to extract first line of therapy.
+
+
+
+## Data preparation
+
+1.  Identify the data of interest. While the intent of the `priorrx` table is to capture
+treatments prior to study start and the `treatment` is to capture on study treatments,
+this does not always happen. A good practice is to stack both tables to create a
+full treatment history and filter on dates when relevant.
+
+ * Overall line of therapy: stack `priorrx_derived` and `treatment_derived` tables to create a full listing of prior and current treatments.
+ 
+ * On study line of therapy: either use `treatment_derived` tables or stack `priorrx_derived` and `treatment_derived` and filter on treatments that occur after the consent date.
+ 
+ * Disease state line of therapy: researchers may be interested in line of therapy after a specific
+ disease state diagnosis, like mHSPC. If so, stack `priorrx_derived` and `treatment_derived` and filter on treatments
+ that occur after the disease state diagnosis.
+ 
+2.  Remove rows with `priorrx_treatment_category`/`trt_treatment_category` equal to any of "ADT", "Bisphosphonates", "Steroid", as these are generally not considered a standalone line of therapy.
+
+3.  If no start date is listed, remove the row from consideration; future data cuts will hopefully be queried and have more information available.
+
+
+## Line of therapy algorithm
+
+The `assign_lot()` does this internally.
+
+1.  Sort the table by treatment start date, and assign the first line (1L) as the first entry, along with entries that occur within a 30 day window of this date as a combo therapy.
+
+2.  End line 1 (or subsequent lines) when a treatment stop date is listed for all therapies in that line.
+    If no end date is entered, use information from step 8 if a new LOT is entered.
+
+3.  Any new treatments listed after 30 days of an LOT start date become a new LOT.
+    Any treatments listed within 30 days of this new LOT start are marked as a combo therapy for that LOT.
+
+4.  Repeat until all LOTs are assigned for each patient.
+
+## Example implementation 
+
+This is a demonstration for situation 1: "Overall line of therapy." Note
+that this takes a few minutes to complete.
+
+```{r}
+library(tidyverse)
+library(ironer)
+```
+
+
+```{r, eval = FALSE, echo = TRUE}
+# stack prior treatments with on study treatments
+# rename variables to match between two data sets
+treatment_prep <- medidata$priorrx_derived %>% 
+  select(
+    subject, treatment = priorrxreg, 
+    exstdat_int = priorrxstdt_int, 
+    exendat_int = priorrxenddt_int, 
+    treatment_recode = priorrx_treatment_recode, 
+    treatment_category = priorrx_treatment_category
+  ) %>%
+  # create variable to indicate origin of data
+  mutate(source = "priorrx") %>% 
+  # stack on study treatments
+  bind_rows(
+    medidata$treatment_derived %>% 
+      select(
+        subject, treatment, exstdat_int, exendat_int, 
+        treatment_recode = trt_treatment_recode, treatment_category = trt_treatment_category
+      ) %>% 
+      # create variable to indicate origin of data
+      mutate(source = "treatment")
+  ) %>%
+  # remove entries with missing start date
+  filter(!is.na(exstdat_int)) %>% 
+  # remove treatments not counted as a line of therapy
+  filter(!trt_treatment_category %in% c("Steroid", "Bone-Modifying Agent", "Bisphosphonates", "Antidiabetic")) |> 
+  # keep relevant fields
+ select(subject, exstdat_int, exendat_int, treatment_category, treatment_recode, source)
+```
+
+Here is what the prepared data looks like for a single subject:
+
+```{r, eval=TRUE, echo=FALSE}
+tibble::tribble(
+     ~subject, ~exstdat_int, ~exendat_int,      ~treatment_category,        ~treatment_recode,     ~source,
+ "170-01-004", "2006-12-15", "2007-06-15",                    "ADT",           "Bicalutamide",   "priorrx",
+ "170-01-004", "2011-02-04", "2011-03-06",                    "ADT",           "Bicalutamide",   "priorrx",
+ "170-01-004", "2011-02-11", "2012-04-30",                    "ADT",             "Leuprolide",   "priorrx",
+ "170-01-004", "2013-05-20", "2014-05-18",                    "ADT",             "Leuprolide",   "priorrx",
+ "170-01-004", "2015-02-13", "2015-11-12",                    "ADT",             "Leuprolide",   "priorrx",
+ "170-01-004", "2016-06-20", "2017-01-06",                    "ADT",           "Bicalutamide",   "priorrx",
+ "170-01-004", "2016-06-22", "2017-09-07",                    "ADT",             "Leuprolide",   "priorrx",
+ "170-01-004", "2006-12-15", "2007-06-15",                    "ADT",             "Leuprolide",   "priorrx",
+ "170-01-004", "2018-04-18",           NA,                    "ADT",             "Leuprolide", "treatment",
+ "170-01-004", "2018-04-18", "2019-01-30",                    "ADT",           "Bicalutamide", "treatment",
+ "170-01-004", "2019-10-01", "2020-01-22", "AR Signaling Inhibitor",            "Apalutamide", "treatment",
+ "170-01-004", "2020-02-11",           NA, "AR Signaling Inhibitor", "Darolutamide (ODM-201)", "treatment"
+ ) |> 
+  DT::datatable(
+    options = list(pageLength = 20), 
+    rownames = FALSE
+    )
+
+```
+
+
+
+```{r, eval=FALSE, echo=TRUE}
+# assign line of therapy 
+treatment_lot <- treatment_prep %>% 
+  # sort by subject and treatment start date
+  arrange(subject, exstdat_int) %>%
+  # within each subject, assign line of therapy
+  group_by(subject) %>%
+  group_modify(~ ironer::assign_lot(
+    .data = .x, 
+    # note, you could use treatment_category here as well to get a high level
+    # view of line of therapy by category
+    treatment = treatment_recode,
+    dt_trt_observed = exstdat_int, 
+    dt_treatment_end = exendat_int
+    )) |> 
+  ungroup()  
+```
+
+
+Example results from a subject. Note that individual treatments are still retained.
+
+```{r, echo=FALSE, eval = TRUE}
+tibble::tribble(
+        ~subject, ~exstdat_int, ~exendat_int,      ~treatment_category,        ~treatment_recode,     ~source, ~lot,                   ~regimen, ~dt_lot_start, ~dt_lot_last_obs,
+    "170-01-004", "2006-12-15", "2007-06-15",                    "ADT",           "Bicalutamide",   "priorrx",    1, "Bicalutamide, Leuprolide",  "2006-12-15",     "2007-06-15",
+    "170-01-004", "2006-12-15", "2007-06-15",                    "ADT",             "Leuprolide",   "priorrx",    1, "Bicalutamide, Leuprolide",  "2006-12-15",     "2007-06-15",
+    "170-01-004", "2011-02-04", "2011-03-06",                    "ADT",           "Bicalutamide",   "priorrx",    2, "Bicalutamide, Leuprolide",  "2011-02-04",     "2012-04-30",
+    "170-01-004", "2011-02-11", "2012-04-30",                    "ADT",             "Leuprolide",   "priorrx",    2, "Bicalutamide, Leuprolide",  "2011-02-04",     "2012-04-30",
+    "170-01-004", "2013-05-20", "2014-05-18",                    "ADT",             "Leuprolide",   "priorrx",    3,               "Leuprolide",  "2013-05-20",     "2015-11-12",
+    "170-01-004", "2015-02-13", "2015-11-12",                    "ADT",             "Leuprolide",   "priorrx",    3,               "Leuprolide",  "2013-05-20",     "2015-11-12",
+    "170-01-004", "2016-06-20", "2017-01-06",                    "ADT",           "Bicalutamide",   "priorrx",    4, "Bicalutamide, Leuprolide",  "2016-06-20",     "2017-09-07",
+    "170-01-004", "2016-06-22", "2017-09-07",                    "ADT",             "Leuprolide",   "priorrx",    4, "Bicalutamide, Leuprolide",  "2016-06-20",     "2017-09-07",
+    "170-01-004", "2018-04-18", "2019-01-30",                    "ADT",           "Bicalutamide", "treatment",    5, "Bicalutamide, Leuprolide",  "2018-04-18",     "2019-01-30",
+    "170-01-004", "2018-04-18",           NA,                    "ADT",             "Leuprolide", "treatment",    5, "Bicalutamide, Leuprolide",  "2018-04-18",     "2019-01-30",
+    "170-01-004", "2019-10-01", "2020-01-22", "AR Signaling Inhibitor",            "Apalutamide", "treatment",    6,              "Apalutamide",  "2019-10-01",     "2020-01-22",
+    "170-01-004", "2020-02-11",           NA, "AR Signaling Inhibitor", "Darolutamide (ODM-201)", "treatment",    7,   "Darolutamide (ODM-201)",  "2020-02-11",     "2020-02-11"
+    ) |> 
+  DT::datatable(
+    options = list(pageLength = 20), 
+    rownames = FALSE
+    )
+```
+
+You can reduce the data set to summarized treatment regimens.
+
+```{r, eval=FALSE, echo=TRUE}
+treatment_lot_summary <- treatment_lot |> 
+  select(subject, lot, regimen, dt_lot_start, dt_lot_last_obs) |> 
+  distinct()
+```
+
+And here is what the same subject would appear as:
+
+```{r, echo=FALSE, eval = TRUE}
+tibble::tribble(
+      ~subject, ~lot,                   ~regimen, ~dt_lot_start, ~dt_lot_last_obs,
+  "170-01-004",    1, "Bicalutamide, Leuprolide",  "2006-12-15",     "2007-06-15",
+  "170-01-004",    2, "Bicalutamide, Leuprolide",  "2011-02-04",     "2012-04-30",
+  "170-01-004",    3,               "Leuprolide",  "2013-05-20",     "2015-11-12",
+  "170-01-004",    4, "Bicalutamide, Leuprolide",  "2016-06-20",     "2017-09-07",
+  "170-01-004",    5, "Bicalutamide, Leuprolide",  "2018-04-18",     "2019-01-30",
+  "170-01-004",    6,              "Apalutamide",  "2019-10-01",     "2020-01-22",
+  "170-01-004",    7,   "Darolutamide (ODM-201)",  "2020-02-11",     "2020-02-11"
+  )|> 
+  DT::datatable(
+    options = list(pageLength = 20), 
+    rownames = FALSE
+    )
+```
+

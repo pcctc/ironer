@@ -1,0 +1,150 @@
+---
+title: "Data documentation"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(ironer)
+```
+
+
+
+# Getting started
+
+Ironman data deliveries may consist of both clinical data and a self-report questionnaire (PROMS).
+These data deliveries are a work in progress to most efficiently meet the needs of all involved partners.
+
+Please refer to the data dictionaries as a primary reference.
+
+PROMS: `YYYY-MM-DD_proms_dictionary.html`
+
+Clinical data: `YYYY-MM-DD_ironman_dictionary.html`
+
+# PROMS
+
+PROMS formatting was updated in April 2021 to create a data set in a more analytic ready format (wide, with with one column per variable.) Select all questions were formatted to have indicators for each of the select options.
+
+## Race/ethnicity
+
+Demographic questions were asked across two different instruments (`irondemog` and `irondemog_v3`).
+Due to the common usage of race/ethnicity, these questions were combined from the two instruments for analysis convenience.
+These are noted in the `irondemog combined` instrument, as well as in the medidata `subject` table.
+
+-   `race.26.x` (a select all question, where `x` indicates the numeric select all option)
+
+    -   `race.26.1` coalesces values from `irondemog.26.1` and `irondemog_v3.26.1`
+
+    -   `race.26.2` coalesces values from `irondemog.26.2` and `irondemog_v3.26.2`
+
+    -   etc.
+
+-   `ethnicity.27`, a multiple choice question.
+
+    -   coalesced from `irondemog.27` and `irondemog_v3.27`
+
+## Height/weight
+
+Survey respondents were asked height and weight in a two part question.
+First, they enter the numeric value of height and weight, and second the enter the unit of measurement (inches/cm or pounds/kg).
+These measurements have been kept in separate variables according to the the unit indicated.
+Note that these are aslo in two different instruments, and should be coalesced for analysis.
+
+-   `irondemog.3.1`, `irondemog_v3.3.1`: height in inches
+
+-   `irondemog.3.2`, `irondemog_v3.3.2`: height in cm
+
+-   `irondemog.5.1`, `irondemog_v3.5.1`: weight in pounds
+
+-   `irondemog.5.2`, `irondemog_v3.5.2`: weight in kg
+
+
+# Clinical Data
+
+## Treatments
+
+See the tables
+
+**`priorrx`** (medical history/prior treatments)
+
+-   This table ideally contains prostate cancer treatments from patient's medical history, before informed consent was signed for the IRONMAN study.
+
+**`treatment`** (cancer treatment)
+
+-   This table contains prostate cancer treatment ongoing at time of informed consent or treatments started while on study.
+
+While these are the completion guidelines for entry, sometimes site may enter in the wrong form so both tables should be referenced to get full view of cancer treatment.
+Each of these forms in the EDC (electronic data capture) are log line forms; `record_position` is the order of entry in the form, but does not represent anything beyond that (i.e., does not represent therapy order).
+
+## Treatment mapping
+
+When possible, treatment regimens are mapped to standardized coding through a a master treatment mapping file used across all PCCTC studies.
+This master list is created by identifying not yet mapped treatments and then personnel researching the drug class, which is confirmed and QC'd by medical monitors when in question.
+The treatment mapping is continuously updated.
+
+Standardized treatment mapping is contained in `priorrx_derived` and `treatment_derived`.
+These two tables contain all information in the original `priorrx` and `treatment` tables, and additionally provide:
+
+-   `priorrxreg_lower`, `treatment_lower`: entry in lower case
+
+-   `priorrx_treatment_recode`, `trt_treatment_recode`: assigned standardized coding
+
+-   `priorrx_treatment_category`, `trt_treatment_category`: assigned treatment category
+
+-   `priorrx_is_taxel`, `trt_is_taxel`: treatment is one of Cabazitaxel, Docetaxel, Paclitaxel, Tesetaxel
+
+-   `priorrx_is_nha`, `trt_is_nha` : treatment is a novel hormonal agent (one of Abiraterone, Enzalutamide, Darolutamide, Apalutamide)
+
+## Gleason scores
+
+There are 6 computed / derived Gleason scores.
+In general, gleason scores consist of
+
+-   gleason 1 (max value 5)
+
+-   gleason 2 (max value 5)
+
+-   gleason sum (max value 10)
+
+However, sites occasionally enter the Gleason sum in either of the first Gleason scores.
+In the cleaned derived Gleason scores
+
+-   if both gleason 1 and gleason 2 are less than or equal to five, the total gleason score is the sum of the two
+
+-   if the first gleason score is greater than five, the total gleason score is taken to be the first gleason score
+
+In the instance that a table has multiple gleason scores per subject (e.g., on study biopsy), the largest gleason score sum is carried forward to the subject table.
+
+| Item | Table                 | Variable                   | Description                                                                                                               |
+|-----------|-----------|-----------|----------------------------------------|
+| 1    | `mhdiagbx`, `subject` | `gleason_bx_mh`            | medical history                                                                                                           |
+| 2    | `prpros`, `subject`   | `gleason_rp_prpros`        | pre-study prior prostatectomy pathology                                                                                   |
+| 3    | `bx_prmi`, `subject`  | `gleason_bx_prmi`          | on study biopsy                                                                                                           |
+| 4    | `rp_prmi`, `subject`  | `gleason_rp_prmi`          | on study prostatectomy pathology                                                                                          |
+| 5    | `subject`             | `gleason_rp_derived`       | prostatectomy pathology, utilizing first on-study results if available, and then pre-study if on-study results are absent |
+| 6    | `subject`             | `gleason_combined_derived` | coalesced gleason sum, with pathological gleason prioritized over biopsy gleason (on study and medical history)           |
+
+## Baseline Metastatic
+
+The designation of a participant as baseline metastatic looks across six different tables.
+In the `subject` table:
+
+-   `is_metastatic_baseline = 1` if at least one of the six tables indicates presence of metastatic disease
+
+-   `origin_metastatic_baseline` indicates what want indicated the metastatic status across the six tables
+
+-   `date_metastatic_baseline` is the earliest date of metastatic flag recorded across the six tables
+
+| Item | Table                               | General Variable(s)                                                                                  | Date Variable                                                     | Description                                                                                                                                                                                         |
+|------------|------------|------------|------------|---------------------------|
+| 1    | `mhclinstg`                         | `clinstg_mstage_u_XXX_std`                                                                           | `clinstg_date_int`                                                | Medical History/Clinical Stage (TNM) at Diagnosis: looks for M stage M1, M1a, M1b, M1c                                                                                                              |
+| 2    | `prpros`                            | `rpdtl_mstage_u_XXX_std`                                                                             | `prprosdt_int`                                                    | Medical History/Prior Prostatectomy: looks for M stage M1, M1a, M1b, M1c                                                                                                                            |
+| 3    | `mhdiagbx`                          | `diagbx_site, diagbx_histology`                                                                      | `diagbx_date_int`                                                 | Medical History/Diagnostic Biopsy: excludes sites listed as `benign` or `negative` in histology; excludes sites containing `Prostate`,`Pelvic lymph`, `Pelvic LN`, `Unknown`, `Pelvis`, `prostatic` |
+| 4    | `cs`                                | `csskull`, `csthor`, `csspine`,`cspelvis`, `csext`, `csliver`, `cslung`, `csdn`, `csoth`, `csother2` | `csdat_int`                                                       | Metastatic Disease Sites (only from `Baseline 0` folder): looks for `Yes` in any of specified fields                                                                                                |
+| 5    | `new_pq` , `new_pq_v4`, `new_pq_v5` | `new_pq::newpq_2[bcde]`; `new_pq_v4::newpq12[bcde]_v4` ; `new_pq_v5::newpq12[bcde]_v5`               | `newpq_date_int` (only protocol 3; represents date QRE completed) | New Treatment Physician Questionnaire (only from `Baseline 0` folder)                                                                                                                               |
+| 6    | `mhdx`                              |                                                                                                      | `mhspcdat_int`, `mcrpcdat_int`                                    | If dates occur prior to baseline window (`cnstdate_int` + 30 days), then considered baseline metastatic                                                                                             |
