@@ -15,32 +15,33 @@ knitr::opts_chunk$set(
 
 # Installation
 
-You can install the current development version of {ironer} from [GitHub](https://github.com/tgerke/ironer). 
+You can install the current development version of {ironer} from [GitHub](https://github.com/pcctc/ironer). 
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("tgerke/ironer")
+devtools::install_github("pcctc/ironer")
 ```
-
-Note that previous development versions are tagged in [releases](https://github.com/tgerke/ironer/releases), 
-which can be used to revert to previous versions of the package if needed.
 
 # Introduction
 
 The goal of {ironer} is to provide a convenience functions and documentation 
-for wrangling data from the IRONMAN registry. 
+for wrangling data from the IRONMAN registry <https://ironmanregistry.org/>. 
 
 If anything is unclear or could use updating, please file an [issue](https://github.com/tgerke/ironer/issues) in this
 repository, or contact the PCCTC data science team at <zzpdl_pcctc_data_science@mskcc.org>.
 
-If you wish to be on an email list for any significant updates to this package, please contact us at
-<zzpdl_pcctc_data_science@mskcc.org> with the subject "{ironer} package updates email list".
 
 # Included
 
-## Vignettes
+## Articles
 
-Please take a look!
+1. Data documentation & FAQ
+
+2. Medidata Data Dictionary
+
+3. PROMS Data Dictionary
+
+4. Line of therapy algorithm
 
 
 ## Functions
@@ -68,11 +69,18 @@ no longer be of interest to most.
 
 The data in the {ironer} package is in progress and subject to change.
 
+* `dictionary_medidata` Data dictionary of clinical data recorded in medidata. Subject to change.
+The data consists of multiple tables.
+
+* `dictionary_proms` is a data set of the data dictionary of Patient Reported Outcomes and Measures (PROMS) self-report survey data. 
+The survey consists of multiple instruments. Some instruments also have multiple versions.
+Subject to change..
+
 * `site_to_country` is a data set of all PCCTC site IDs mapping from treatment site to country.
 Not all site IDs apply to Ironman. Note that as sites get added this data may need updating.
 In addition, curated data deliveries now contain country information in the medidata subject table.
 
-* `treatment_map` represents the treatment mappings from the orignal raw data to 
+* `treatment_map` represents the treatment mappings from the original raw data to 
 standardized & recoded treatment assignments. If a mapping needs to be corrected or added,
 please file an issue or contact PCCTC. Note that this mapping should already
 be in the `priorrx_derived` and `treatment_derived` tables.

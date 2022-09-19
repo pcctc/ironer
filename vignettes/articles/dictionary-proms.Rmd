@@ -1,5 +1,5 @@
 ---
-title: "Proms Data Dictionary"
+title: "PROMs Data Dictionary"
 ---
 
 ```{r, include = FALSE}
@@ -14,7 +14,7 @@ The survey consists of multiple instruments. Some instruments also have multiple
 Subject to change.
 
 
-```{r setup}
+```{r }
 library(ironer)
 #?dictionary_proms
 ```

@@ -64,7 +64,7 @@ The `assign_lot()` does this internally.
 This is a demonstration for situation 1: "Overall line of therapy." Note
 that this takes a few minutes to complete.
 
-```{r}
+```{r, message=FALSE}
 library(tidyverse)
 library(ironer)
 ```
