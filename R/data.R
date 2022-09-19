@@ -79,3 +79,45 @@
 "treatment_map"
 
 
+
+
+#' Medidata dictionary
+#'
+#' Data dictionary of clinical data recorded in medidata. Subject to change.
+#' The data consists of multiple tables.
+#'
+#' @format A data frame with 8 variables:
+#' \describe{
+#'   \item{Table}{Medidata table}
+#'   \item{Table.description}{Medidata table description}
+#'   \item{Variable}{Variable name in medidata table}
+#'   \item{Variable.label}{If available, a descriptive label for the variable}
+#'   \item{R.column.type}{How the variable is stored in R}
+#'   \item{DRS.Prompt.text}{Design Request Specification: Prompt text in the electronic data capture}
+#'   \item{DRS.Format}{Design Request Specification: Variable capture SAS format specification electronic data capture}
+#'   \item{DRS.Entry.type}{Design Request Specification: Variable field type in electronic data capture}
+#' }
+#' @examples
+#' head(dictionary_medidata)
+"dictionary_medidata"
+
+#' PROMS dictionary
+#'
+#' Data dictionary of Patient Reported Outcomes and Measures (PROMS) self-report survey data. Subject to change.
+#'
+#' @format A data frame with 8 variables:
+#' \describe{
+#'   \item{instrument}{Survey instrument}
+#'   \item{instrument_description}{Survey instrument description}
+#'   \item{variable_type}{Type of survey question (one of multiple choice, select all that apply, write-in, etc.)}
+#'   \item{variable}{Variable name that references instrument and question}
+#'   \item{label}{Variable label with question text}
+#'   \item{values_original}{Reponse values as original programmed}
+#'   \item{values_clean}{Response values cleaned with lower case and extra spaces removed}
+#'   \item{col_type}{How the variable is stored in R}
+#' }
+#' @examples
+#' head(dictionary_proms)
+"dictionary_proms"
+
+

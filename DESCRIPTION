@@ -7,7 +7,7 @@ Authors@R: c(
            role = c("aut", "cre"),
            email = "gerket@mskcc.org",
            comment = c(ORCID = "0000-0002-9500-8907")),
-    person("Shannon", "Pileggi", "pileggis@mskcc.org", role = c("aut"),
+    person(given = "Shannon", family = "Pileggi", email = "pileggis@mskcc.org", role = c("aut"),
            comment = c(ORCID = "0000-0002-7732-4164"))
   )         
 Description: This set of functions aims to make IRONMAN-related
@@ -36,3 +36,5 @@ Imports:
 Depends: 
     R (>= 2.10)
 LazyData: true
+Suggests: 
+    rmarkdown

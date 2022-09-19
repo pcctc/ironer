@@ -1,0 +1,38 @@
+---
+title: "Medidata Data Dictionary"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(ironer)
+```
+
+Data dictionary of clinical data recorded in medidata. Subject to change.
+The data consists of multiple tables.
+
+
+```{r setup}
+library(ironer)
+#?dictionary_medidata
+```
+
+```{r dictionary-reactable, echo=FALSE}
+dictionary_medidata %>% 
+   reactable::reactable(
+    filterable = TRUE,
+    searchable = TRUE,
+    resizable = TRUE,
+    groupBy = "Table",
+    #paginateSubRows = FALSE,
+    columns = list(
+      Table = reactable::colDef(minWidth = 200)
+    )
+  )
+```
+
