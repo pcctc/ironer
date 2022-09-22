@@ -1,0 +1,52 @@
+---
+title: "Treatment mapping"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(ironer)
+# ?treatment_map
+# View(treatment_map)
+```
+
+When possible, treatment regimens are mapped to standardized coding through a a master treatment mapping file.
+This master list is created by identifying not yet mapped treatments and then personnel researching the drug class, which is confirmed and QC'd by medical monitors when in question.
+The treatment mapping is continuously updated.
+
+The treatment mapping data set can be accessed by installing this package and then
+submitting `View(treatment_map)`. The treatment mapping is also shown here
+for convenience. Please submit corrections or additions as an [issue](https://github.com/pcctc/ironer/issues) in this
+repository, or contact the PCCTC data science team at <zzpdl_pcctc_data_science@mskcc.org>.
+
+
+
+| Variable             | Meaning                        | 
+| :--------------------|:---------------------------------
+| `treatment_category` | Assigned treatment category |
+| `treatment_recode`   | Assigned treatment standardized coding |
+| `treatment`          | Treatment as submitted to the study |
+| `treatment_lower`    | Treatment as submitted to the study lower case |
+| `is_taxel`           | Indicates if treatment is a `taxel` (one of Cabazitaxel, Docetaxel, Paclitaxel, Tesetaxel) |
+| `is_nha`             | Indicates if treatment is a novel hormone agent (one of Abiraterone, Enzalutamide, Darolutamide, Apalutamide) |
+
+
+```{r dictionary-reactable, echo=FALSE}
+treatment_map %>% 
+   reactable::reactable(
+    filterable = TRUE,
+    searchable = TRUE,
+    resizable = TRUE,
+    #groupBy = "treatment_category",
+    defaultPageSize = 500
+    #paginateSubRows = FALSE,
+    #columns = list(
+    #  treatment_category = reactable::colDef(minWidth = 200)
+    #)
+  )
+```

@@ -1,5 +1,5 @@
 ---
-title: "Data documentation"
+title: "Medidata data documentation"
 ---
 
 ```{r, include = FALSE}
@@ -9,62 +9,49 @@ knitr::opts_chunk$set(
 )
 ```
 
+```{r }
+library(ironer)
+```
+
+# About Medidata
+
+Medidata is the electronic data capture system used for clinical data in IRONMAN.
+The data deliveries are a work in progress to most efficiently meet the needs of all involved partners,
+and is subject to change. 
+
+# Medidata dictionary
+
+The clinical data from medidata consists of multiple tables; each section shown
+corresponds to a different data table. Click on the triangle to expand the 
+data table and see individual fields. Only the first 10 tables are shown,
+click on page numbers to see more tables or search in the search bar for a
+field of interest.
+
+
 ```{r setup}
 library(ironer)
+# ?dictionary_medidata
+# View(dictionary_medidata)
+```
+
+```{r dictionary-reactable, echo=FALSE}
+dictionary_medidata %>% 
+   reactable::reactable(
+    filterable = TRUE,
+    searchable = TRUE,
+    resizable = TRUE,
+    groupBy = "table",
+    defaultPageSize = 10,
+    #paginateSubRows = FALSE,
+    columns = list(
+      table = reactable::colDef(minWidth = 200)
+    )
+  )
 ```
 
 
 
-# Getting started
-
-Ironman data deliveries may consist of both clinical data and a self-report questionnaire (PROMS).
-These data deliveries are a work in progress to most efficiently meet the needs of all involved partners.
-
-Please refer to the data dictionaries as a primary reference.
-
-PROMS: `YYYY-MM-DD_proms_dictionary.html`
-
-Clinical data: `YYYY-MM-DD_ironman_dictionary.html`
-
-# PROMS
-
-PROMS formatting was updated in April 2021 to create a data set in a more analytic ready format (wide, with with one column per variable.) Select all questions were formatted to have indicators for each of the select options.
-
-## Race/ethnicity
-
-Demographic questions were asked across two different instruments (`irondemog` and `irondemog_v3`).
-Due to the common usage of race/ethnicity, these questions were combined from the two instruments for analysis convenience.
-These are noted in the `irondemog combined` instrument, as well as in the medidata `subject` table.
-
--   `race.26.x` (a select all question, where `x` indicates the numeric select all option)
-
-    -   `race.26.1` coalesces values from `irondemog.26.1` and `irondemog_v3.26.1`
-
-    -   `race.26.2` coalesces values from `irondemog.26.2` and `irondemog_v3.26.2`
-
-    -   etc.
-
--   `ethnicity.27`, a multiple choice question.
-
-    -   coalesced from `irondemog.27` and `irondemog_v3.27`
-
-## Height/weight
-
-Survey respondents were asked height and weight in a two part question.
-First, they enter the numeric value of height and weight, and second the enter the unit of measurement (inches/cm or pounds/kg).
-These measurements have been kept in separate variables according to the the unit indicated.
-Note that these are aslo in two different instruments, and should be coalesced for analysis.
-
--   `irondemog.3.1`, `irondemog_v3.3.1`: height in inches
-
--   `irondemog.3.2`, `irondemog_v3.3.2`: height in cm
-
--   `irondemog.5.1`, `irondemog_v3.5.1`: weight in pounds
-
--   `irondemog.5.2`, `irondemog_v3.5.2`: weight in kg
-
-
-# Clinical Data
+# More details
 
 ## Treatments
 
@@ -81,9 +68,9 @@ See the tables
 While these are the completion guidelines for entry, sometimes site may enter in the wrong form so both tables should be referenced to get full view of cancer treatment.
 Each of these forms in the EDC (electronic data capture) are log line forms; `record_position` is the order of entry in the form, but does not represent anything beyond that (i.e., does not represent therapy order).
 
-## Treatment mapping
+## Treatment mapping (derived variables)
 
-When possible, treatment regimens are mapped to standardized coding through a a master treatment mapping file used across all PCCTC studies.
+When possible, treatment regimens are mapped to standardized coding through a a master treatment mapping file.
 This master list is created by identifying not yet mapped treatments and then personnel researching the drug class, which is confirmed and QC'd by medical monitors when in question.
 The treatment mapping is continuously updated.
 
@@ -100,7 +87,7 @@ These two tables contain all information in the original `priorrx` and `treatmen
 
 -   `priorrx_is_nha`, `trt_is_nha` : treatment is a novel hormonal agent (one of Abiraterone, Enzalutamide, Darolutamide, Apalutamide)
 
-## Gleason scores
+## Gleason scores  (derived variables)
 
 There are 6 computed / derived Gleason scores.
 In general, gleason scores consist of
@@ -129,7 +116,7 @@ In the instance that a table has multiple gleason scores per subject (e.g., on s
 | 5    | `subject`             | `gleason_rp_derived`       | prostatectomy pathology, utilizing first on-study results if available, and then pre-study if on-study results are absent |
 | 6    | `subject`             | `gleason_combined_derived` | coalesced gleason sum, with pathological gleason prioritized over biopsy gleason (on study and medical history)           |
 
-## Baseline Metastatic
+## Baseline Metastatic  (derived variables)
 
 The designation of a participant as baseline metastatic looks across six different tables.
 In the `subject` table:
@@ -148,3 +135,6 @@ In the `subject` table:
 | 4    | `cs`                                | `csskull`, `csthor`, `csspine`,`cspelvis`, `csext`, `csliver`, `cslung`, `csdn`, `csoth`, `csother2` | `csdat_int`                                                       | Metastatic Disease Sites (only from `Baseline 0` folder): looks for `Yes` in any of specified fields                                                                                                |
 | 5    | `new_pq` , `new_pq_v4`, `new_pq_v5` | `new_pq::newpq_2[bcde]`; `new_pq_v4::newpq12[bcde]_v4` ; `new_pq_v5::newpq12[bcde]_v5`               | `newpq_date_int` (only protocol 3; represents date QRE completed) | New Treatment Physician Questionnaire (only from `Baseline 0` folder)                                                                                                                               |
 | 6    | `mhdx`                              |                                                                                                      | `mhspcdat_int`, `mcrpcdat_int`                                    | If dates occur prior to baseline window (`cnstdate_int` + 30 days), then considered baseline metastatic                                                                                             |
+
+
+# FAQ

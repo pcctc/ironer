@@ -7,14 +7,14 @@
 \format{
 A data frame with 8 variables:
 \describe{
-\item{Table}{Medidata table}
-\item{Table.description}{Medidata table description}
-\item{Variable}{Variable name in medidata table}
-\item{Variable.label}{If available, a descriptive label for the variable}
-\item{R.column.type}{How the variable is stored in R}
-\item{DRS.Prompt.text}{Design Request Specification: Prompt text in the electronic data capture}
-\item{DRS.Format}{Design Request Specification: Variable capture SAS format specification electronic data capture}
-\item{DRS.Entry.type}{Design Request Specification: Variable field type in electronic data capture}
+\item{table}{Medidata table}
+\item{table_description}{Medidata table description}
+\item{variable}{Variable name in medidata table}
+\item{variable_label}{If available, a descriptive label for the variable}
+\item{r_column_type}{How the variable is stored in R}
+\item{drs_prompt_text}{Design Request Specification: Prompt text in the electronic data capture}
+\item{drs_format}{Design Request Specification: Variable capture SAS format specification electronic data capture}
+\item{drs_entry_type}{Design Request Specification: Variable field type in electronic data capture}
 }
 }
 \usage{

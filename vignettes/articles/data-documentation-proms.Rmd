@@ -1,0 +1,89 @@
+---
+title: "PROMS data documentation"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(ironer)
+# ?dictionary_proms
+# View(dictionary_proms)
+```
+
+
+
+# About PROMS
+
+PROMS is a self-report questionnaire for the IRONMAN study. 
+The data deliveries are a work in progress to most efficiently meet the needs of all involved partners.
+The survey consists of multiple instruments. Some instruments also have multiple versions.
+
+
+# PROMS dictionary
+
+All survey instruments are contained in a single data file; each section shown corresponds to a survey instrument.
+Click on the triangle to expand the survey instrument and see invidual questions.
+
+
+```{r }
+library(ironer)
+#?dictionary_proms
+```
+
+```{r dictionary-reactable, echo=FALSE}
+dictionary_proms %>% 
+   reactable::reactable(
+    filterable = TRUE,
+    searchable = TRUE,
+    resizable = TRUE,
+    groupBy = "instrument",
+    defaultPageSize = 15,
+    #paginateSubRows = FALSE,
+    columns = list(
+      instrument = reactable::colDef(minWidth = 200)
+    )
+  )
+```
+
+# More details
+
+## Race/ethnicity
+
+Demographic questions were asked across two different instruments (`irondemog` and `irondemog_v3`).
+Due to the common usage of race/ethnicity, these questions were combined from the two instruments for analysis convenience.
+These are noted in the `irondemog combined` instrument, as well as in the medidata `subject` table.
+
+-   `race.26.x` (a select all question, where `x` indicates the numeric select all option)
+
+    -   `race.26.1` coalesces values from `irondemog.26.1` and `irondemog_v3.26.1`
+
+    -   `race.26.2` coalesces values from `irondemog.26.2` and `irondemog_v3.26.2`
+
+    -   etc.
+
+-   `ethnicity.27`, a multiple choice question.
+
+    -   coalesced from `irondemog.27` and `irondemog_v3.27`
+
+## Height/weight
+
+Survey respondents were asked height and weight in a two part question.
+First, they enter the numeric value of height and weight, and second the enter the unit of measurement (inches/cm or pounds/kg).
+These measurements have been kept in separate variables according to the the unit indicated.
+Note that these are also in two different instruments, and should be coalesced for analysis.
+
+-   `irondemog.3.1`, `irondemog_v3.3.1`: height in inches
+
+-   `irondemog.3.2`, `irondemog_v3.3.2`: height in cm
+
+-   `irondemog.5.1`, `irondemog_v3.5.1`: weight in pounds
+
+-   `irondemog.5.2`, `irondemog_v3.5.2`: weight in kg
+
+
+# FAQ

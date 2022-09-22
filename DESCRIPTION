@@ -2,40 +2,33 @@ Package: ironer
 Title: Convenience Functions for the IRONMAN Study
 Version: 0.0.1
 Authors@R: c(
-  person(given = "Shannon", family = "Pileggi", email = "pileggis@mskcc.org", role = c("cre", "aut"),
-           comment = c(ORCID = "0000-0002-7732-4164"))
- person(given = "Travis",
-           family = "Gerke",
-           role = c("aut"),
-           email = "gerket@mskcc.org",
-           comment = c(ORCID = "0000-0002-9500-8907")),
-  )         
-Description: This set of functions aims to make IRONMAN-related
-   workflows easier, both for internal reproducibility and for
-   data scientists/analysts operating under external data use 
-   agreements. 
+    person("Shannon", "Pileggi", , "pileggis@mskcc.org", role = c("cre", "aut"),
+           comment = c(ORCID = "0000-0002-7732-4164")),
+    person("Travis", "Gerke", , "gerket@mskcc.org", role = "aut",
+           comment = c(ORCID = "0000-0002-9500-8907"))
+  )
+Description: This set of functions aims to make IRONMAN-related workflows
+    easier, both for internal reproducibility and for data
+    scientists/analysts operating under external data use agreements.
 License: Apache License (>= 2)
-Encoding: UTF-8
-Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.0
 URL: https://github.com/pcctc/ironer
 BugReports: https://github.com/pcctc/ironer/issues
+Depends: 
+    R (>= 2.10)
 Imports: 
     cli,
     dplyr,
     glue,
-    haven,
     janitor,
     labelled,
     lubridate,
     magrittr,
-    purrr,
-    rlang,
     stringr,
     tibble,
     tidyr
-Depends: 
-    R (>= 2.10)
-LazyData: true
 Suggests: 
     rmarkdown
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.0
