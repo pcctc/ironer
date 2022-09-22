@@ -2,13 +2,13 @@ Package: ironer
 Title: Convenience Functions for the IRONMAN Study
 Version: 0.0.1
 Authors@R: c(
+  person(given = "Shannon", family = "Pileggi", email = "pileggis@mskcc.org", role = c("cre", "aut"),
+           comment = c(ORCID = "0000-0002-7732-4164"))
  person(given = "Travis",
            family = "Gerke",
-           role = c("aut", "cre"),
+           role = c("aut"),
            email = "gerket@mskcc.org",
            comment = c(ORCID = "0000-0002-9500-8907")),
-    person(given = "Shannon", family = "Pileggi", email = "pileggis@mskcc.org", role = c("aut"),
-           comment = c(ORCID = "0000-0002-7732-4164"))
   )         
 Description: This set of functions aims to make IRONMAN-related
    workflows easier, both for internal reproducibility and for
@@ -21,6 +21,7 @@ RoxygenNote: 7.2.0
 URL: https://github.com/pcctc/ironer
 BugReports: https://github.com/pcctc/ironer/issues
 Imports: 
+    cli,
     dplyr,
     glue,
     haven,

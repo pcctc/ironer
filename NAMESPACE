@@ -3,5 +3,4 @@
 export("%>%")
 export(assign_baseline_metastatic)
 export(assign_lot)
-export(read_medidata)
 importFrom(magrittr,"%>%")
