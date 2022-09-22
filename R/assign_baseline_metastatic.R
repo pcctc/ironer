@@ -292,6 +292,49 @@ assign_baseline_metastatic <- function(medidata_list) {
       )
 
 
+    # check for duplicate subjects ---------------------------------------------
+    dups <- tibble::lst(
+      rule_1, rule_2, rule_3, rule_4, rule_5, rule_6
+      ) |>
+      map(find_duplicates, subject)
+
+
+    # rule 1 duplicates warning ----
+    if(nrow(dups$rule_1) > 0) {
+      cli::cli_alert_info(c(
+        "Rule 1 (mhclinstg) has {nrow(dups$rule_1)} duplicate subject record{?s}\n",
+        "{dups$rule_1$subject}"))
+    }
+
+    # rule 2 duplicates warning ----
+    if(nrow(dups$rule_2) > 0) {
+      cli::cli_alert_info(c(
+        "Rule 2 (prpros) has {nrow(dups$rule_2)} duplicate subject record{?s}\n",
+        "{dups$rule_2$subject}"))
+    }
+
+    # rule 3 duplicates warning ----
+    if(nrow(dups$rule_3) > 0) {
+      cli::cli_alert_info(c(
+        "Rule 3 (mhdiagbx) has {nrow(dups$rule_3)} duplicate subject record{?s}\n",
+        "{dups$rule_3$subject}"))
+    }
+
+
+    # rule 4 duplicates warning ----
+    if(nrow(dups$rule_4) > 0) {
+      cli::cli_alert_info(c(
+        "Rule 4 (cs) has {nrow(dups$rule_4)} duplicate subject record{?s}\n",
+        "{dups$rule_4$subject}"))
+    }
+
+
+    # rule 5 duplicates warning ----
+    if(nrow(dups$rule_5) > 0) {
+      cli::cli_alert_info(c(
+        "Rule 5 (physician questionnaire) has {nrow(dups$rule_5)} duplicate subject record{?s}\n",
+        "{dups$rule_5$subject}"))
+    }
 
     # combine all rules ------------------------------------------------------------
     metastatic_flags_all <- rule_1 %>%
@@ -301,6 +344,11 @@ assign_baseline_metastatic <- function(medidata_list) {
       dplyr::full_join(rule_4 %>% select(subject, is_mets_rule_4, origin_mets_rule_4, date_rule_4), by = "subject") %>%
       dplyr::full_join(rule_5 %>% select(subject, is_mets_rule_5, origin_mets_rule_5, date_rule_5), by = "subject") %>%
       dplyr::full_join(rule_6 %>% select(subject, is_mets_rule_6, origin_mets_rule_6, date_rule_6), by = "subject") %>%
+      # in case of duplicate records per subject, retail last record -----------
+      dplyr::group_by(subject) |>
+      dplyr::mutate(last_obs = dplyr::row_number() == dplyr::n()) |>
+      dplyr::ungroup() |>
+      dplyr::filter(last_obs) |>
       dplyr::mutate(dplyr::across(dplyr::matches("date_rule"), lubridate::as_date)) %>%
       dplyr::mutate(dplyr::across(dplyr::matches("origin_mets"), na_if, "")) %>%
       dplyr::mutate(
@@ -351,11 +399,15 @@ assign_baseline_metastatic <- function(medidata_list) {
       select(subject, is_metastatic_baseline, origin_metastatic_baseline, date_metastatic_baseline)
 
 
+
+
     out <- tibble::lst(
       metastatic_flags, metastatic_flags_all, rule_1, rule_2, rule_3, rule_4, rule_5, rule_6
     )
 
     return(out)
+
+
 
 
   }
