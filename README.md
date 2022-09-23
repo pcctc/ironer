@@ -18,8 +18,8 @@ documentation for wrangling data from the IRONMAN registry
 <https://ironmanregistry.org/>.
 
 If anything is unclear or could use updating, please file an
-\[issue\]<https://github.com/pcctc/ironer/issues>) in this repository,
-or contact the PCCTC data science team at
+[issue](https://github.com/pcctc/ironer/issues) in this repository, or
+contact the PCCTC data science team at
 <zzpdl_pcctc_data_science@mskcc.org>.
 
 # Included
