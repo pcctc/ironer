@@ -6,7 +6,7 @@
 # dp_set_max_rows(10000)
 # datapasta::tribble_paste(dictionary_medidata)
 
-dictionary_medidata <- tibble::tribble(
+dictionary_medidata <-
   tibble::tribble(
     ~Table,                    ~Variable,                                ~`Table description`,                                                                                                                                              ~`Variable label`, ~`R column type`,                                                                                                                                                                                                                    ~`Prompt text`,
     "alk",                    "subject",                                               "ALK",                                                                                                                                   "Subject name or identifier",          "chr",                                                                                                                                                                                                                                  NA,
