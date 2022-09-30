@@ -8,6 +8,9 @@
    
    + add race & ethnicity variables captured in PROMS to `subject` table
    
+   + update classification of baseline metastatic in `subject` table to include a
+   seventh rule based on additional biopsies
+   
    
 * Medidata dictionary: 
 

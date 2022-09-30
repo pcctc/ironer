@@ -81,7 +81,6 @@ assign_baseline_metastatic <- function(medidata_list) {
     # this rule in particular could use regular QC
     # create a flag for diagnostic biopsy in any metastatic anatomic sites
     rule_3 <- medidata_list$mhdiagbx %>%
-      janitor::clean_names() %>%
       dplyr::mutate(
         diagbx_site_clean = diagbx_site %>% stringr::str_to_lower() %>% stringr::str_squish(),
         is_site_mets =  stringr::str_detect(
@@ -97,7 +96,7 @@ assign_baseline_metastatic <- function(medidata_list) {
           stringr::regex("benign|negative", ignore_case = TRUE),
           negate = TRUE),
         is_mets_rule_3 = dplyr::case_when(
-          .data$diagbx_site == "" ~ 0,
+          is.na(.data$diagbx_site) ~ 0,
           is_site_mets & is_histology_mets ~ 1,
           TRUE ~ 0
         ),
@@ -167,7 +166,6 @@ assign_baseline_metastatic <- function(medidata_list) {
     # call mets when sites are marked from each pq as:
     # new_pq: bone, lymph node, visceral, or soft tissue
     rule_5 <- medidata_list$new_pq %>%
-      janitor::clean_names() %>%
       dplyr::filter(.data$instance_name == "Baseline 0") %>%
       dplyr::select(
         .data$subject, date_rule_5 = newpq_date_int, .data$newpq_2b, .data$newpq_2c, .data$newpq_2d, .data$newpq_2e
@@ -291,12 +289,68 @@ assign_baseline_metastatic <- function(medidata_list) {
         origin_mets_rule_6 = "Origin of metastatic classification by rule 6 (mhdx: Disease State Dates)"
       )
 
+    # rule 7 ---------------------------------------------------------------------
+    # Medical History/Additional Biopsies (mhaddbx)
+    # this rule in particular could use regular QC
+    # create a flag for diagnostic biopsy in any metastatic anatomic sites
+    # this is similar to rule 3: mhdiagbx
+    rule_7 <- medidata_list$mhaddbx  %>%
+      dplyr::left_join(
+        dplyr::select(medidata_list$ic, subject, cnstdate_int), by = "subject"
+      ) %>%
+      dplyr::mutate(
+        baseline_window = cnstdate_int + 30,
+        in_baseline = addbxdate_int < baseline_window
+      ) |>
+      dplyr::filter(in_baseline) |>
+      dplyr::mutate(
+        addbx_site_clean = addbx_site %>% stringr::str_to_lower() %>% stringr::str_squish(),
+        is_site_mets =  stringr::str_detect(
+          addbx_site_clean,
+          stringr::regex(
+            paste("Prostate", "Pelvic lymph", "Pelvic LN", "Unknown", "Pelvis", "prostatic", sep = "|"),
+            ignore_case = TRUE
+          ),
+          negate = TRUE
+        ),
+        is_histology_mets = stringr::str_detect(
+          addbx_histology,
+          stringr::regex("benign|negative", ignore_case = TRUE),
+          negate = TRUE),
+        is_mets_rule_7 = dplyr::case_when(
+          is.na(.data$addbx_site) ~ 0,
+          is_site_mets & is_histology_mets ~ 1,
+          TRUE ~ 0
+        ),
+        date_rule_7_init = dplyr::case_when(
+          is_mets_rule_7 == 1 ~ addbxdate_int
+        )
+      ) %>%
+      dplyr::arrange(subject, addbxdate_int) |>
+      # for this group, only keep those indicated as baseline metastatic
+      dplyr::filter(is_mets_rule_7 == 1) |>
+      dplyr::group_by(subject, is_mets_rule_7, is_site_mets, is_histology_mets) |>
+      dplyr::summarize(
+        date_rule_7 = min(date_rule_7_init),
+        origin_mets_rule_7_init = paste(addbx_site, collapse = "; "),
+        addbx_histology = paste(addbx_histology, collapse = "; "),
+      ) |>
+      dplyr::ungroup() |>
+      dplyr::mutate(origin_mets_rule_7 = paste0("Additional biopsy: ", origin_mets_rule_7_init)) |>
+      dplyr::select(subject, is_mets_rule_7, origin_mets_rule_7, date_rule_7, is_site_mets, is_histology_mets, addbx_histology) %>%
+      labelled::set_variable_labels(
+        date_rule_7 = "addbxdate_int: Earliest date of metastatic additional biopsy prior to consent",
+        is_mets_rule_7 = "1 if indicated by addbx_site",
+        origin_mets_rule_7 = "Origin of metastatic classification by rule 7 (mhdiagbx: Medical History/Diagnostic Biopsy)",
+        addbx_histology = "Histology biopsy"
+      )
+
 
     # check for duplicate subjects ---------------------------------------------
     dups <- tibble::lst(
-      rule_1, rule_2, rule_3, rule_4, rule_5, rule_6
+      rule_1, rule_2, rule_3, rule_4, rule_5, rule_6, rule_7
       ) |>
-      map(find_duplicates, subject)
+      map(croquet::find_duplicates, subject)
 
 
     # rule 1 duplicates warning ----
@@ -336,6 +390,22 @@ assign_baseline_metastatic <- function(medidata_list) {
         "{dups$rule_5$subject}"))
     }
 
+    # rule 6 duplicates warning ----
+    if(nrow(dups$rule_6) > 0) {
+      cli::cli_alert_info(c(
+        "Rule 6 (Disease State Dates) has {nrow(dups$rule_6)} duplicate subject record{?s}\n",
+        "{dups$rule_6$subject}"))
+    }
+
+    # rule 7 duplicates warning ----
+    if(nrow(dups$rule_7) > 0) {
+      cli::cli_alert_info(c(
+        "Rule 7 (Additional biopsies) has {nrow(dups$rule_7)} duplicate subject record{?s}\n",
+        "{dups$rule_7$subject}"))
+    }
+
+
+
     # combine all rules ------------------------------------------------------------
     metastatic_flags_all <- rule_1 %>%
       dplyr::select(subject, is_mets_rule_1, origin_mets_rule_1, date_rule_1) %>%
@@ -344,6 +414,7 @@ assign_baseline_metastatic <- function(medidata_list) {
       dplyr::full_join(rule_4 %>% select(subject, is_mets_rule_4, origin_mets_rule_4, date_rule_4), by = "subject") %>%
       dplyr::full_join(rule_5 %>% select(subject, is_mets_rule_5, origin_mets_rule_5, date_rule_5), by = "subject") %>%
       dplyr::full_join(rule_6 %>% select(subject, is_mets_rule_6, origin_mets_rule_6, date_rule_6), by = "subject") %>%
+      dplyr::full_join(rule_7 %>% select(subject, is_mets_rule_7, origin_mets_rule_7, date_rule_7), by = "subject") %>%
       # in case of duplicate records per subject, retail last record -----------
       dplyr::group_by(subject) |>
       dplyr::mutate(last_obs = dplyr::row_number() == dplyr::n()) |>
@@ -379,10 +450,10 @@ assign_baseline_metastatic <- function(medidata_list) {
           na.rm = TRUE
         )) %>%
       rowwise() %>%
-      # if all 6 dates missing assign to proper date missing, otherwise return to min
+      # if all 7 dates missing assign to proper date missing, otherwise return to min
       mutate(date_metastatic_baseline = case_when(
-        num_date_miss == 6 ~ NA_Date_,
-        TRUE ~ suppressWarnings({min(date_rule_1, date_rule_2, date_rule_3, date_rule_4, date_rule_5, date_rule_6, na.rm = TRUE) %>% as_date()})
+        num_date_miss == 7 ~ NA_Date_,
+        TRUE ~ suppressWarnings({min(date_rule_1, date_rule_2, date_rule_3, date_rule_4, date_rule_5, date_rule_6, date_rule_7, na.rm = TRUE) %>% as_date()})
       )) %>%
       ungroup() %>%
       # one more for good measure
@@ -399,10 +470,8 @@ assign_baseline_metastatic <- function(medidata_list) {
       select(subject, is_metastatic_baseline, origin_metastatic_baseline, date_metastatic_baseline)
 
 
-
-
     out <- tibble::lst(
-      metastatic_flags, metastatic_flags_all, rule_1, rule_2, rule_3, rule_4, rule_5, rule_6
+      metastatic_flags, metastatic_flags_all, rule_1, rule_2, rule_3, rule_4, rule_5, rule_6, rule_7
     )
 
     return(out)
