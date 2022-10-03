@@ -65,7 +65,8 @@ This is a demonstration for situation 1: "Overall line of therapy." Note
 that this takes a few minutes to complete.
 
 ```{r, message=FALSE}
-library(tidyverse)
+library(dplyr)
+library(tibble)
 library(ironer)
 ```
 
