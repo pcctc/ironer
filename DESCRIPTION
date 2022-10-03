@@ -11,7 +11,8 @@ Description: This set of functions aims to make IRONMAN-related workflows
     easier, both for internal reproducibility and for data
     scientists/analysts operating under external data use agreements.
 License: Apache License (>= 2)
-URL: https://github.com/pcctc/ironer
+URL: https://github.com/pcctc/ironer,
+    https://pcctc.github.io/ironer/
 BugReports: https://github.com/pcctc/ironer/issues
 Depends: 
     R (>= 2.10)
@@ -28,6 +29,7 @@ Imports:
     tibble,
     tidyr
 Suggests: 
+    covr,
     rmarkdown
 Remotes: 
     pcctc/croquet

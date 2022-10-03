@@ -13,6 +13,16 @@ knitr::opts_chunk$set(
 )
 ```
 
+# ironer
+
+<!-- badges: start -->
+[![Codecov test coverage](https://codecov.io/gh/pcctc/ironer/branch/main/graph/badge.svg)](https://app.codecov.io/gh/pcctc/ironer?branch=main)
+[![R-CMD-check](https://github.com/pcctc/ironer/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/pcctc/ironer/actions/workflows/R-CMD-check.yaml)
+<!-- badges: end -->
+
+The goal of ironer is to ...
+
+
 # Installation
 
 You can install the current development version of {ironer} from [GitHub](https://github.com/pcctc/ironer). 
@@ -75,5 +85,3 @@ Subject to change..
 standardized & recoded treatment assignments. If a mapping needs to be corrected or added,
 please file an issue or contact PCCTC. Note that this mapping should already
 be in the `priorrx_derived` and `treatment_derived` tables.
-
-

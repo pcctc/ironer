@@ -1,6 +1,17 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+# ironer
+
+<!-- badges: start -->
+
+[![Codecov test
+coverage](https://codecov.io/gh/pcctc/ironer/branch/main/graph/badge.svg)](https://app.codecov.io/gh/pcctc/ironer?branch=main)
+[![R-CMD-check](https://github.com/pcctc/ironer/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/pcctc/ironer/actions/workflows/R-CMD-check.yaml)
+<!-- badges: end -->
+
+The goal of ironer is to …
+
 # Installation
 
 You can install the current development version of {ironer} from
