@@ -10,8 +10,6 @@ coverage](https://codecov.io/gh/pcctc/ironer/branch/main/graph/badge.svg)](https
 [![R-CMD-check](https://github.com/pcctc/ironer/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/pcctc/ironer/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The goal of ironer is to …
-
 # Installation
 
 You can install the current development version of {ironer} from
