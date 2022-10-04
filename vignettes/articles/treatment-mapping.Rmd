@@ -28,10 +28,10 @@ repository, or contact the PCCTC data science team at <zzpdl_pcctc_data_science@
 
 | Variable             | Meaning                        | 
 | :--------------------|:---------------------------------
-| `treatment_category` | Assigned treatment category |
-| `treatment_recode`   | Assigned treatment standardized coding |
 | `treatment`          | Treatment as submitted to the study |
 | `treatment_lower`    | Treatment as submitted to the study lower case |
+| `treatment_recode`   | Assigned treatment standardized coding |
+| `treatment_category` | Assigned treatment category |
 | `is_taxel`           | Indicates if treatment is a `taxel` (one of Cabazitaxel, Docetaxel, Paclitaxel, Tesetaxel) |
 | `is_nha`             | Indicates if treatment is a novel hormone agent (one of Abiraterone, Enzalutamide, Darolutamide, Apalutamide) |
 

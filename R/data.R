@@ -7,10 +7,10 @@
 #'
 #' @format A data frame with 5 variables:
 #' \describe{
-#'   \item{treatment_category}{Assigned treatment category}
-#'   \item{treatment_recode}{Assigned treatment standardized coding}
 #'   \item{treatment}{Treatment as submitted to the study}
 #'   \item{treatment_lower}{Treatment as submitted to the study lower case}
+#'   \item{treatment_recode}{Assigned treatment standardized coding}
+#'   \item{treatment_category}{Assigned treatment category}
 #'   \item{is_taxel}{Indicates if treatment is a `taxel` (one of Cabazitaxel, Docetaxel, Paclitaxel, Tesetaxel)}
 #'   \item{is_nha}{Indicates if treatment is a novel hormone agent (one of Abiraterone, Enzalutamide, Darolutamide, Apalutamide)}
 #' }
