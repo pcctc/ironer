@@ -74,17 +74,17 @@ be in the <code>priorrx_derived</code> and <code>treatment_derived</code> tables
 
     <div class="section level2">
     <h2 id="format">Format<a class="anchor" aria-label="anchor" href="#format"></a></h2>
-    <p>A data frame with 5 variables:</p><dl><dt>treatment_category</dt>
-<dd><p>Assigned treatment category</p></dd>
-
-<dt>treatment_recode</dt>
-<dd><p>Assigned treatment standardized coding</p></dd>
-
-<dt>treatment</dt>
+    <p>A data frame with 5 variables:</p><dl><dt>treatment</dt>
 <dd><p>Treatment as submitted to the study</p></dd>
 
 <dt>treatment_lower</dt>
 <dd><p>Treatment as submitted to the study lower case</p></dd>
+
+<dt>treatment_recode</dt>
+<dd><p>Assigned treatment standardized coding</p></dd>
+
+<dt>treatment_category</dt>
+<dd><p>Assigned treatment category</p></dd>
 
 <dt>is_taxel</dt>
 <dd><p>Indicates if treatment is a <code>taxel</code> (one of Cabazitaxel, Docetaxel, Paclitaxel, Tesetaxel)</p></dd>
@@ -98,21 +98,21 @@ be in the <code>priorrx_derived</code> and <code>treatment_derived</code> tables
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">treatment_map</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 460 × 6</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    treatment_category    treatment_recode treatment       treat…¹ is_ta…² is_nha</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> a/ß tubulin inhibitor VERU-111         VERU-111 (Α/Β … veru-1… FALSE   FALSE </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> a/ß tubulin inhibitor VERU-111         VERU-111 (О±/О… veru-1… FALSE   FALSE </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> a/ß tubulin inhibitor VERU-111         VERU 111 (Oral… veru 1… FALSE   FALSE </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> a/ß tubulin Inhibitor VERU-111         VERU-111        veru-1… FALSE   FALSE </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> A2AR Inhibitor        AZD4635          AZD4635         azd4635 FALSE   FALSE </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> A2AR Inhibitor        NIR178           NIR 178         nir 178 FALSE   FALSE </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> A2AR Inhibitor        NIR178           NIR178          nir178  FALSE   FALSE </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> ADT                   ADT              ADT             adt     FALSE   FALSE </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> ADT                   ADT              ADT - unknown … adt - … FALSE   FALSE </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> ADT                   ADT              ADT + Lupron    adt + … FALSE   FALSE </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># … with 450 more rows, and abbreviated variable names ¹​treatment_lower,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   ²​is_taxel</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 168 × 6</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    treatment                              treat…¹ treat…² treat…³ is_ta…⁴ is_nha</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> VERU-111                               veru-1… VERU-1… a/ß tu… FALSE   FALSE </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> NIR178                                 nir178  NIR178  A2AR I… FALSE   FALSE </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> ADT                                    adt     ADT     ADT     FALSE   FALSE </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> Anandron                               anandr… Niluta… ADT     FALSE   FALSE </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> Androcur (cyproterone acetate)         androc… Cyprot… ADT     FALSE   FALSE </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> Androgen deprivation LHRH              androg… ADT     ADT     FALSE   FALSE </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> Androgen Deprivation Therapy (ADT), u… androg… ADT     ADT     FALSE   FALSE </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> androgen suppression                   androg… ADT     ADT     FALSE   FALSE </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> Bicalutamide                           bicalu… Bicalu… ADT     FALSE   FALSE </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> Buserelin                              busere… Busere… ADT     FALSE   FALSE </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># … with 158 more rows, and abbreviated variable names ¹​treatment_lower,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   ²​treatment_recode, ³​treatment_category, ⁴​is_taxel</span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
