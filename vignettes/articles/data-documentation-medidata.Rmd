@@ -138,3 +138,9 @@ In the `subject` table:
 | 7    | `mhaddbx`                              | `addbx_site`, `addbx_histology`                                                                   | `addbxdate_int`                 | Additional biopsies; if dates occur prior to baseline window (`cnstdate_int` + 30 days), then considered baseline metastatic; if multiple biopsies present, take earliest date
 
 # FAQ
+
+1. **Are genetic testing results available?**
+
+While IRONMAN collects genetic testing reports, the information requires manual 
+review to be abstracted. We are developing a CRF better capture and deliver detailed
+genetic information.

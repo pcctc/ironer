@@ -87,3 +87,17 @@ Note that these are also in two different instruments, and should be coalesced f
 
 
 # FAQ
+
+**1. For FACT-FPSI, are there only 2 questions recorded (`factfpsi_1` and `factfpsi_2`)?**
+
+Confirmed in data set and protocol that only 2 questions are collected.
+
+**2. For BPI, one two questions were found. (`ironmisc_12` and `ironmisc_13` or
+`ironmisc_v5_15` and `ironmisc_v5_16`). Please advise on how to process them.**
+
+The responses should be combined across the two protocol versions to get a complete set.
+
+**3. Why does `ironmisc` not have an indication of questionnaire name? **
+
+`ironmisc` questions are miscellaneous questions not part of a formal instrument; they
+are presented to patients as “How you feel, your memory, sleep quality, and pain”.
