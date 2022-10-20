@@ -139,7 +139,7 @@ In the `subject` table:
 
 # FAQ
 
-## Genetic testing
+1. **Are genetic testing results available?**
 
 While IRONMAN collects genetic testing reports, the information requires manual 
 review to be abstracted. We are developing a CRF better capture and deliver detailed
