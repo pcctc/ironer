@@ -10,16 +10,6 @@ coverage](https://codecov.io/gh/pcctc/ironer/branch/main/graph/badge.svg)](https
 [![R-CMD-check](https://github.com/pcctc/ironer/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/pcctc/ironer/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-# Installation
-
-You can install the current development version of {ironer} from
-[GitHub](https://github.com/pcctc/ironer).
-
-``` r
-# install.packages("devtools")
-devtools::install_github("pcctc/ironer")
-```
-
 # Introduction
 
 The goal of {ironer} is to provide a convenience functions and
@@ -30,6 +20,35 @@ If anything is unclear or could use updating, please file an
 [issue](https://github.com/pcctc/ironer/issues) in this repository, or
 contact the PCCTC data science team at
 <zzpdl_pcctc_data_science@mskcc.org>.
+
+# Ironman Overview
+
+Please see the peer-reviewed journal publication:
+
+<a href="https://ascopubs.org/doi/pdf/10.1200/GO.22.00154?role=tab"
+target="_blank">IRONMAN: A Novel International Registry of Men With
+Advanced Prostate Cancer</a>
+
+Lorelei A. Mucci, Jacob Vinson, Theresa Gold, Travis Gerke, Julie
+Filipenko, Rebecca M. Green, Simon G. Anderson, Simone Badal, Anders
+Bjartell, Kim N. Chi, Ian D. Davis, Deborah Enting, André P. Fay, John
+Lazarus, Joaquin Mateo, Ray McDermott, Folakemi T. Odedina, David Olmos,
+Aurelius Omlin, Ademola A. Popoola, Camille Ragin, Robin Roberts, Kjell
+M. Russnes, Charles Waihenya, Konrad H. Stopsack, Terry Hyslop, Paul
+Villanti, Philip W. Kantoff, Daniel J. George, and on behalf of the
+IRONMAN Global Team
+
+JCO Global Oncology 2022 :8
+
+# Installation
+
+You can install the current development version of {ironer} from
+[GitHub](https://github.com/pcctc/ironer).
+
+``` r
+# install.packages("devtools")
+devtools::install_github("pcctc/ironer")
+```
 
 # Included
 
