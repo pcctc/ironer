@@ -1,3 +1,16 @@
+# ironer 0.0.3 [2022-11-14]
+
+* Medidata data
+
+  + add `prsurg` (Prior Cancer Related Surgery) and `surg` (Cancer Surgery) tables to standard data delivery (this contains mostly free text responses).
+
+
+* PROMS data
+
+  + fix encoding of multiple choice survey responses (some were
+  coded numerically, some coded character - ensure all are coded as
+  character).
+
 # ironer 0.0.2 [2022-09-30]
 
 * Medidata data
