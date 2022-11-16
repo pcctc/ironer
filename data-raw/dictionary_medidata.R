@@ -1935,6 +1935,14 @@ dictionary_medidata <-
     "treatment_derived",       "trt_treatment_recode",                                "Derived: treatment",                                                                                                                       "Assigned treatment standardized coding",          "chr",                                                                                                                                                                                                                                  NA,
     "treatment_derived",               "trt_is_taxel",                                "Derived: treatment",                                                                                           "Treatment is one of  Cabazitaxel, Docetaxel, Paclitaxel, Tesetaxel",          "lgl",                                                                                                                                                                                                                                  NA,
     "treatment_derived",                 "trt_is_nha",                                "Derived: treatment",                                                            "Treatment is a novel hormonal agent (one of Abiraterone, Enzalutamide, Darolutamide, Apalutamide)",          "lgl",                                                                                                                                                                                                                                  NA
+  ) |>
+  select(
+    Table = Table,
+    `Table description` = Table.description,
+    Variable = Variable,
+    `Variable label` = Variable.label,
+    `R column type` = R.column.type,
+    `Prompt text` = Prompt.text
   )
 
 
