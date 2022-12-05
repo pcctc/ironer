@@ -1,6 +1,6 @@
 Package: ironer
 Title: Convenience Functions for the IRONMAN Study
-Version: 0.0.2
+Version: 0.0.4
 Authors@R: c(
     person("Shannon", "Pileggi", , "pileggis@mskcc.org", role = c("cre", "aut"),
            comment = c(ORCID = "0000-0002-7732-4164")),

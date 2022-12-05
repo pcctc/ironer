@@ -1,3 +1,7 @@
+# ironer 0.0.4 [2022-12-05]
+
+* updated `treatment_map` by cleaning some therapies that were mapping to multiple treatments due to capitalization discrepancies.
+
 # ironer 0.0.3 [2022-11-14]
 
 * Medidata data
