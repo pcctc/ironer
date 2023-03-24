@@ -1,3 +1,15 @@
+# ironer 0.0.5 [2023-03-24]
+
+* Medidata data
+
+ + add `basedoneyn`, `mon12_yn`, and `cyclex_yn` to general data deliveries.
+
+* Documentation
+
+ + Update FAQ for genetic testing.
+ 
+ + Add date imputation explanation.
+
 # ironer 0.0.4 [2022-12-05]
 
 * updated `treatment_map` by cleaning some therapies that were mapping to multiple treatments due to capitalization discrepancies.
