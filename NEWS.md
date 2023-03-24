@@ -2,13 +2,13 @@
 
 * Medidata data
 
- + add `basedoneyn`, `mon12_yn`, and `cyclex_yn` to general data deliveries.
+  + add `basedoneyn`, `mon12_yn`, and `cyclex_yn` to general data deliveries.
 
 * Documentation
 
- + Update FAQ for genetic testing.
+  + Update FAQ for genetic testing.
  
- + Add date imputation explanation.
+  + Add date imputation explanation.
 
 # ironer 0.0.4 [2022-12-05]
 
