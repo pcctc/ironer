@@ -315,7 +315,7 @@ assign_baseline_metastatic <- function(medidata_list) {
         ),
         is_histology_mets = stringr::str_detect(
           addbx_histology,
-          stringr::regex("benign|negative", ignore_case = TRUE),
+          stringr::regex("benign|negative|unknown", ignore_case = TRUE),
           negate = TRUE),
         is_mets_rule_7 = dplyr::case_when(
           is.na(.data$addbx_site) ~ 0,
