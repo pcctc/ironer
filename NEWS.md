@@ -1,3 +1,12 @@
+# ironer 0.0.5 [2023-04-17]
+
+
+* Medidata data
+
+   + For the derived indication of baseline metastatic, additional logic was
+   included to **not** count unknown histology in additional biopsies (rule 7, `mhaddbx`) 
+   as baseline metastatic. This affected 6 subjects.
+
 # ironer 0.0.5 [2023-03-24]
 
 * Medidata data
