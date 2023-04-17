@@ -315,7 +315,7 @@ assign_baseline_metastatic <- function(medidata_list) {
         ),
         is_histology_mets = stringr::str_detect(
           addbx_histology,
-          stringr::regex("benign|negative", ignore_case = TRUE),
+          stringr::regex("benign|negative|unknown", ignore_case = TRUE),
           negate = TRUE),
         is_mets_rule_7 = dplyr::case_when(
           is.na(.data$addbx_site) ~ 0,
@@ -341,7 +341,7 @@ assign_baseline_metastatic <- function(medidata_list) {
       labelled::set_variable_labels(
         date_rule_7 = "addbxdate_int: Earliest date of metastatic additional biopsy prior to consent",
         is_mets_rule_7 = "1 if indicated by addbx_site",
-        origin_mets_rule_7 = "Origin of metastatic classification by rule 7 (mhdiagbx: Medical History/Diagnostic Biopsy)",
+        origin_mets_rule_7 = "Origin of metastatic classification by rule 7 (mhaddbx: Medical History/Additional Biopsies)",
         addbx_histology = "Histology biopsy"
       )
 
