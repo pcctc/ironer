@@ -1,4 +1,13 @@
-# ironer 0.0.5 [2023-04-17]
+# ironer 0.0.7 [2023-04-20]
+
+* PROMS data
+
+   + In `YYYY-MM-DD_proms.csv` exports, the `dbl` (numeric) fields `eortc_29`, 
+   `eortc_30`, `ironmisc_12`, `ironmisc_13`, `ironmisc_v5_15`, and `ironmisc_v5_16`
+   were corrected to not export character values of `NA` in the .csv; instead,
+   missing values now appear as blank.
+
+# ironer 0.0.6 [2023-04-17]
 
 
 * Medidata data
