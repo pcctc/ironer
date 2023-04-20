@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">ironer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.7</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,6 +53,20 @@
       <small>Source: <a href="https://github.com/pcctc/ironer/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.0.7" id="ironer-007-2023-04-20">ironer 0.0.7 [2023-04-20]<a class="anchor" aria-label="anchor" href="#ironer-007-2023-04-20"></a></h2>
+<ul><li>
+<p>PROMS data</p>
+<ul><li>In <code>YYYY-MM-DD_proms.csv</code> exports, the <code>dbl</code> (numeric) fields <code>eortc_29</code>, <code>eortc_30</code>, <code>ironmisc_12</code>, <code>ironmisc_13</code>, <code>ironmisc_v5_15</code>, and <code>ironmisc_v5_16</code> were corrected to not export character values of <code>NA</code> in the .csv; instead, missing values now appear as blank.</li>
+</ul></li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.0.6" id="ironer-006-2023-04-17">ironer 0.0.6 [2023-04-17]<a class="anchor" aria-label="anchor" href="#ironer-006-2023-04-17"></a></h2>
+<ul><li>
+<p>Medidata data</p>
+<ul><li>For the derived indication of baseline metastatic, additional logic was included to <strong>not</strong> count unknown histology in additional biopsies (rule 7, <code>mhaddbx</code>) as baseline metastatic. This affected 6 subjects.</li>
+</ul></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.5" id="ironer-005-2023-03-24">ironer 0.0.5 [2023-03-24]<a class="anchor" aria-label="anchor" href="#ironer-005-2023-03-24"></a></h2>
 <ul><li>
