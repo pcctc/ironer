@@ -31,13 +31,24 @@ repository, or contact the PCCTC data science team at <zzpdl_pcctc_data_science@
 
 # Ironman Overview
 
-Please see the peer-reviewed journal publication:
+Please see the peer-reviewed journal publications:
 
 [IRONMAN: A Novel International Registry of Men With Advanced Prostate Cancer](https://ascopubs.org/doi/pdf/10.1200/GO.22.00154?role=tab){target="_blank"}
 
-Lorelei A. Mucci, Jacob Vinson, Theresa Gold, Travis Gerke, Julie Filipenko, Rebecca M. Green, Simon G. Anderson, Simone Badal, Anders Bjartell, Kim N. Chi, Ian D. Davis, Deborah Enting, André P. Fay, John Lazarus, Joaquin Mateo, Ray McDermott, Folakemi T. Odedina, David Olmos, Aurelius Omlin, Ademola A. Popoola, Camille Ragin, Robin Roberts, Kjell M. Russnes, Charles Waihenya, Konrad H. Stopsack, Terry Hyslop, Paul Villanti, Philip W. Kantoff, Daniel J. George, and on behalf of the IRONMAN Global Team
-
 JCO Global Oncology 2022 :8
+
+[Tackling Diversity in Prostate Cancer Clinical Trials: A Report From the Diversity Working Group of the IRONMAN Registry](https://pubmed.ncbi.nlm.nih.gov/33835826/){target="_blank"}
+
+JCO Glob Oncol. 2021 Apr;7:495-505.
+
+[Quality of life in the year after new diagnosis with advanced prostate cancer for Black and White individuals living in the US](https://pubmed.ncbi.nlm.nih.gov/37410340/){target="_blank"}
+
+Qual Life Res. 2023 Jul 6.
+
+[Experience with the US health care system for Black and White patients with advanced prostate cancer](https://pubmed.ncbi.nlm.nih.gov/37246339/){target="_blank"}
+
+Cancer. 2023 Aug 15;129(16):2532-2541.
+
 
 # Installation
 
