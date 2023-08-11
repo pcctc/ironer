@@ -1,3 +1,9 @@
+# ironer 0.0.8 [2023-08-11]
+
+* README
+
+   + Added additional publications.
+
 # ironer 0.0.7 [2023-04-20]
 
 * PROMS data
