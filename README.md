@@ -25,30 +25,24 @@ contact the PCCTC data science team at
 
 Please see the peer-reviewed journal publications:
 
-<a href="https://ascopubs.org/doi/pdf/10.1200/GO.22.00154?role=tab"
-target="_blank">IRONMAN: A Novel International Registry of Men With
-Advanced Prostate Cancer</a>
+1.  <a href="https://ascopubs.org/doi/pdf/10.1200/GO.22.00154?role=tab"
+    target="_blank">IRONMAN: A Novel International Registry of Men With
+    Advanced Prostate Cancer</a> *JCO Global Oncology 2022 :8*
 
-JCO Global Oncology 2022 :8
+2.  <a href="https://pubmed.ncbi.nlm.nih.gov/33835826/"
+    target="_blank">Tackling Diversity in Prostate Cancer Clinical Trials: A
+    Report From the Diversity Working Group of the IRONMAN Registry</a>
+    *JCO Glob Oncol. 2021 Apr;7:495-505.*
 
-<a href="https://pubmed.ncbi.nlm.nih.gov/33835826/"
-target="_blank">Tackling Diversity in Prostate Cancer Clinical Trials: A
-Report From the Diversity Working Group of the IRONMAN Registry</a>
+3.  <a href="https://pubmed.ncbi.nlm.nih.gov/37410340/"
+    target="_blank">Quality of life in the year after new diagnosis with
+    advanced prostate cancer for Black and White individuals living in the
+    US</a> *Qual Life Res. 2023 Jul 6.*
 
-JCO Glob Oncol. 2021 Apr;7:495-505.
-
-<a href="https://pubmed.ncbi.nlm.nih.gov/37410340/"
-target="_blank">Quality of life in the year after new diagnosis with
-advanced prostate cancer for Black and White individuals living in the
-US</a>
-
-Qual Life Res. 2023 Jul 6.
-
-<a href="https://pubmed.ncbi.nlm.nih.gov/37246339/"
-target="_blank">Experience with the US health care system for Black and
-White patients with advanced prostate cancer</a>
-
-Cancer. 2023 Aug 15;129(16):2532-2541.
+4.  <a href="https://pubmed.ncbi.nlm.nih.gov/37246339/"
+    target="_blank">Experience with the US health care system for Black and
+    White patients with advanced prostate cancer</a> *Cancer. 2023 Aug
+    15;129(16):2532-2541.*
 
 # Installation
 
