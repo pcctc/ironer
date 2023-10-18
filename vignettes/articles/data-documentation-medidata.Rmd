@@ -53,7 +53,7 @@ A single date field is generally captured in 6 variables.
 For example, in the `treatment` table the field `exstdat` (treatment start date) there is:
 
 | Variable      | Description                                                                              | Type      | Contains imputed values? |
-|---------------|---------------------------|---------------|---------------|
+|----------------|-------------------------|----------------|----------------|
 | `exstdat`     | Start date with any unknown month/day/year as a missing value                            | Date      | No                       |
 | `exstdat_raw` | Start date in format `DD MMM YYYY`; unknown fields are represented with `un`/`UN`        | Character | No                       |
 | `exstdat_int` | Start date where unknown month or day are imputed as `1`; unknown year imputed as `1900` | Date      | Yes                      |
@@ -116,7 +116,7 @@ In the cleaned derived Gleason scores
 In the instance that a table has multiple gleason scores per subject (e.g., on study biopsy), the largest gleason score sum is carried forward to the subject table.
 
 | Item | Table                 | Variable                   | Description                                                                                                               |
-|----------------|----------------|----------------|-------------------------|
+|-----------------|-----------------|-----------------|-----------------------|
 | 1    | `mhdiagbx`, `subject` | `gleason_bx_mh`            | medical history                                                                                                           |
 | 2    | `prpros`, `subject`   | `gleason_rp_prpros`        | pre-study prior prostatectomy pathology                                                                                   |
 | 3    | `bx_prmi`, `subject`  | `gleason_bx_prmi`          | on study biopsy                                                                                                           |
@@ -144,6 +144,32 @@ In the `subject` table:
 | 5    | `new_pq` , `new_pq_v4`, `new_pq_v5` | `new_pq::newpq_2[bcde]`; `new_pq_v4::newpq12[bcde]_v4` ; `new_pq_v5::newpq12[bcde]_v5`               | `newpq_date_int` (only protocol 3; represents date QRE completed) | New Treatment Physician Questionnaire (only from `Baseline 0` folder)                                                                                                                               |
 | 6    | `mhdx`                              |                                                                                                      | `mhspcdat_int`, `mcrpcdat_int`                                    | Disease state; if dates occur prior to baseline window (`cnstdate_int` + 30 days), then considered baseline metastatic                                                                              |
 | 7    | `mhaddbx`                           | `addbx_site`, `addbx_histology`                                                                      | `addbxdate_int`                                                   | Additional biopsies; if dates occur prior to baseline window (`cnstdate_int` + 30 days), then considered baseline metastatic; if multiple biopsies present, take earliest date                      |
+
+## Physician Questionnaires
+
+The Physician Questionnaires have changed over time under different protocols.
+
+```{r, echo=FALSE, warning=FALSE}
+path_pdf <- list(
+  file.path("articles", "pqs", "IRONMAN_Registry_Protocol_v2_Physician_Questionnaire.pdf"),
+  file.path("articles", "pqs", "IRONMAN_Registry_Protocol_v3_Physician_Questionnaire.pdf"),
+  file.path("articles", "pqs", "IRONMAN_Registry_Protocol_v4_Physician_Questionnaire.pdf"),
+  file.path("articles", "pqs", "IRONMAN_Registry_Protocol_v5_Physician_Questionnaire.pdf")
+)
+```
+
+```{r}
+path_pdf
+```
+
+
+| Protocol | Questionnaire | New Treatment Table | Treatment Discontinuation Table |
+|---------|---------------|--------------------|---------------------------------|
+| v1, v2  | [IRONMAN_Registry_Protocol_v2_Physician_Questionnaire.pdf](articles/pqs/IRONMAN_Registry_Protocol_v2_Physician_Questionnaire.pdf)              | `pq`               | `discpq`                        |
+| v3      | [IRONMAN_Registry_Protocol_v3_Physician_Questionnaire.pdf](articles/pqs/IRONMAN_Registry_Protocol_v3_Physician_Questionnaire.pdf)              | `new_pq`           | `discpq`                        |
+| v4      |  [IRONMAN_Registry_Protocol_v4_Physician_Questionnaire.pdf](articles/pqs/IRONMAN_Registry_Protocol_v4_Physician_Questionnaire.pdf)             | `new_pq_v4`        | `newdisc_pqv4`                  |
+| v5, v6  |   [IRONMAN_Registry_Protocol_v5_Physician_Questionnaire.pdf](articles/pqs/IRONMAN_Registry_Protocol_v5_Physician_Questionnaire.pdf)            | `new_pq_v5`        | `newdisc_pqv5`                  |
+
 
 # FAQ
 
