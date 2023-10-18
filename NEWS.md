@@ -1,3 +1,11 @@
+# ironer 0.0.9 [2023-10-18]
+
+* Medidata documentation
+
+  + Add physician questionnaires and information regarding corresponding protocols.
+  
+  + Update Medidata dictionary to match latest data commons export.
+
 # ironer 0.0.8 [2023-08-11]
 
 * README
