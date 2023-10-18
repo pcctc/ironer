@@ -152,7 +152,7 @@ The Physician Questionnaires have changed over time under different protocols.
 
 | Protocol | Questionnaire | New Treatment Table | Treatment Discontinuation Table |
 |---------|---------------|--------------------|---------------------------------|
-| v1, v2  | [IRONMAN_Registry_Protocol_v2_Physician_Questionnaire.pdf](https://github.com/pcctc/ironer/tree/main/vignettes/articles/pqs/IRONMAN_Registry_Protocol_v3_Physician_Questionnaire.pdf)             | `pq`               | `discpq`                        |
+| v1, v2  | [IRONMAN_Registry_Protocol_v2_Physician_Questionnaire.pdf](https://github.com/pcctc/ironer/tree/main/vignettes/articles/pqs/IRONMAN_Registry_Protocol_v2_Physician_Questionnaire.pdf)             | `pq`               | `discpq`                        |
 | v3      | [IRONMAN_Registry_Protocol_v3_Physician_Questionnaire.pdf](https://github.com/pcctc/ironer/tree/main/vignettes/articles/pqs/IRONMAN_Registry_Protocol_v3_Physician_Questionnaire.pdf)              | `new_pq`           | `discpq`                        |
 | v4      |  [IRONMAN_Registry_Protocol_v4_Physician_Questionnaire.pdf](https://github.com/pcctc/ironer/tree/main/vignettes/articles/pqs/IRONMAN_Registry_Protocol_v4_Physician_Questionnaire.pdf)             | `new_pq_v4`        | `newdisc_pqv4`                  |
 | v5, v6  |   [IRONMAN_Registry_Protocol_v5_Physician_Questionnaire.pdf](https://github.com/pcctc/ironer/tree/main/vignettes/articles/pqs/IRONMAN_Registry_Protocol_v5_Physician_Questionnaire.pdf)            | `new_pq_v5`        | `newdisc_pqv5`                  |
