@@ -1,3 +1,18 @@
+# ironer 0.1.0 [2024-06-20]
+
+* Medidata data
+
+  + `priorrx` (prior treatments) `treatment` (cancer treatments) consolidated into
+  a single form `ca_cm` (cancer treatments). 
+  
+  + `priorrx`, `priorrx_derived`, `treatment`, and `treatment_derived` removed
+  
+  + `ca_cm` and `ca_cm_derived` added
+  
+  + additionally, `pf` (sequencing reports) and `gf` (genomics findings) added
+  
+
+
 # ironer 0.0.9 [2023-10-18]
 
 * Medidata documentation
