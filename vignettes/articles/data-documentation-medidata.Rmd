@@ -63,7 +63,15 @@ For example, in the `treatment` table the field `exstdat` (treatment start date)
 
 ## Treatments
 
-See the tables
+
+As of June 2024, all cancer treatments are consolidated into a single data frame (`ca_cm`).
+
+Each of these forms in the EDC (electronic data capture) are log line forms; 
+`record_position` is the order of entry in the form, but does not represent anything 
+beyond that (i.e., does not represent therapy order).
+
+
+Prior to this date, they were stored as follows:
 
 **`priorrx`** (medical history/prior treatments)
 
@@ -73,8 +81,7 @@ See the tables
 
 -   This table contains prostate cancer treatment ongoing at time of informed consent or treatments started while on study.
 
-While these are the completion guidelines for entry, sometimes site may enter in the wrong form so both tables should be referenced to get full view of cancer treatment.
-Each of these forms in the EDC (electronic data capture) are log line forms; `record_position` is the order of entry in the form, but does not represent anything beyond that (i.e., does not represent therapy order).
+
 
 ## Treatment mapping (derived variables)
 
@@ -82,18 +89,18 @@ When possible, treatment regimens are mapped to standardized coding through a a 
 This master list is created by identifying not yet mapped treatments and then personnel researching the drug class, which is confirmed and QC'd by medical monitors when in question.
 The treatment mapping is continuously updated.
 
-Standardized treatment mapping is contained in `priorrx_derived` and `treatment_derived`.
-These two tables contain all information in the original `priorrx` and `treatment` tables, and additionally provide:
+Standardized treatment mapping is contained in `ca_cm_derived`.
+These two tables contain all information in the original `ca_cm` table, and additionally provides:
 
--   `priorrxreg_lower`, `treatment_lower`: entry in lower case
+-   `treatment_lower`: entry in lower case
 
--   `priorrx_treatment_recode`, `trt_treatment_recode`: assigned standardized coding
+-   `trt_treatment_recode`: assigned standardized coding
 
--   `priorrx_treatment_category`, `trt_treatment_category`: assigned treatment category
+-   `trt_treatment_category`: assigned treatment category
 
--   `priorrx_is_taxel`, `trt_is_taxel`: treatment is one of Cabazitaxel, Docetaxel, Paclitaxel, Tesetaxel
+-   `trt_is_taxel`: treatment is one of Cabazitaxel, Docetaxel, Paclitaxel, Tesetaxel
 
--   `priorrx_is_nha`, `trt_is_nha` : treatment is a novel hormonal agent (one of Abiraterone, Enzalutamide, Darolutamide, Apalutamide)
+-   `trt_is_nha` : treatment is a novel hormonal agent (one of Abiraterone, Enzalutamide, Darolutamide, Apalutamide)
 
 ## Gleason scores (derived variables)
 
@@ -162,5 +169,5 @@ The Physician Questionnaires have changed over time under different protocols.
 
 1.  **Are genetic testing results available?**
 
-IRONMAN collects genetic testing reports.
-A new CRF was implemented in November 2022 to better capture and deliver genetic information, and is pending completion by sites and not yet ready to be delivered.
+IRONMAN started collecting genetic testing reports in November 2022. These are now 
+available in the pf` (sequencing reports) and `gf` (genomics findings) tables.
