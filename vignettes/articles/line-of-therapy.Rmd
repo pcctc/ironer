@@ -74,51 +74,38 @@ library(ironer)
 ```{r, eval = FALSE, echo = TRUE}
 # stack prior treatments with on study treatments
 # rename variables to match between two data sets
-treatment_prep <- medidata$priorrx_derived %>% 
-  select(
-    subject, treatment = priorrxreg, 
-    exstdat_int = priorrxstdt_int, 
-    exendat_int = priorrxenddt_int, 
-    treatment_recode = priorrx_treatment_recode, 
-    treatment_category = priorrx_treatment_category
-  ) %>%
-  # create variable to indicate origin of data
-  mutate(source = "priorrx") %>% 
-  # stack on study treatments
-  bind_rows(
-    medidata$treatment_derived %>% 
+treatment_prep <- 
+    medidata$ca_cm_derived %>% 
       select(
         subject, treatment, exstdat_int, exendat_int, 
         treatment_recode = trt_treatment_recode, treatment_category = trt_treatment_category
-      ) %>% 
-      # create variable to indicate origin of data
-      mutate(source = "treatment")
+      ) 
   ) %>%
   # remove entries with missing start date
   filter(!is.na(exstdat_int)) %>% 
   # remove treatments not counted as a line of therapy
   filter(!trt_treatment_category %in% c("Steroid", "Bone-Modifying Agent", "Bisphosphonates", "Antidiabetic")) |> 
   # keep relevant fields
- select(subject, exstdat_int, exendat_int, treatment_category, treatment_recode, source)
+ select(subject, exstdat_int, exendat_int, treatment_category, treatment_recode)
 ```
 
 Here is what the prepared data looks like for a single subject:
 
 ```{r, eval=TRUE, echo=FALSE}
 tibble::tribble(
-     ~subject, ~exstdat_int, ~exendat_int,      ~treatment_category,        ~treatment_recode,     ~source,
- "XXX-XX-XXX", "2006-12-15", "2007-06-15",                    "ADT",           "Bicalutamide",   "priorrx",
- "XXX-XX-XXX", "2011-02-04", "2011-03-06",                    "ADT",           "Bicalutamide",   "priorrx",
- "XXX-XX-XXX", "2011-02-11", "2012-04-30",                    "ADT",             "Leuprolide",   "priorrx",
- "XXX-XX-XXX", "2013-05-20", "2014-05-18",                    "ADT",             "Leuprolide",   "priorrx",
- "XXX-XX-XXX", "2015-02-13", "2015-11-12",                    "ADT",             "Leuprolide",   "priorrx",
- "XXX-XX-XXX", "2016-06-20", "2017-01-06",                    "ADT",           "Bicalutamide",   "priorrx",
- "XXX-XX-XXX", "2016-06-22", "2017-09-07",                    "ADT",             "Leuprolide",   "priorrx",
- "XXX-XX-XXX", "2006-12-15", "2007-06-15",                    "ADT",             "Leuprolide",   "priorrx",
- "XXX-XX-XXX", "2018-04-18",           NA,                    "ADT",             "Leuprolide", "treatment",
- "XXX-XX-XXX", "2018-04-18", "2019-01-30",                    "ADT",           "Bicalutamide", "treatment",
- "XXX-XX-XXX", "2019-10-01", "2020-01-22", "AR Signaling Inhibitor",            "Apalutamide", "treatment",
- "XXX-XX-XXX", "2020-02-11",           NA, "AR Signaling Inhibitor", "Darolutamide (ODM-201)", "treatment"
+     ~subject, ~exstdat_int, ~exendat_int,      ~treatment_category,        ~treatment_recode,
+ "XXX-XX-XXX", "2006-12-15", "2007-06-15",                    "ADT",           "Bicalutamide",
+ "XXX-XX-XXX", "2011-02-04", "2011-03-06",                    "ADT",           "Bicalutamide",
+ "XXX-XX-XXX", "2011-02-11", "2012-04-30",                    "ADT",             "Leuprolide",
+ "XXX-XX-XXX", "2013-05-20", "2014-05-18",                    "ADT",             "Leuprolide",
+ "XXX-XX-XXX", "2015-02-13", "2015-11-12",                    "ADT",             "Leuprolide",
+ "XXX-XX-XXX", "2016-06-20", "2017-01-06",                    "ADT",           "Bicalutamide",
+ "XXX-XX-XXX", "2016-06-22", "2017-09-07",                    "ADT",             "Leuprolide",
+ "XXX-XX-XXX", "2006-12-15", "2007-06-15",                    "ADT",             "Leuprolide",
+ "XXX-XX-XXX", "2018-04-18",           NA,                    "ADT",             "Leuprolide", 
+ "XXX-XX-XXX", "2018-04-18", "2019-01-30",                    "ADT",           "Bicalutamide", 
+ "XXX-XX-XXX", "2019-10-01", "2020-01-22", "AR Signaling Inhibitor",            "Apalutamide", 
+ "XXX-XX-XXX", "2020-02-11",           NA, "AR Signaling Inhibitor", "Darolutamide (ODM-201)"  
  ) |> 
   DT::datatable(
     options = list(pageLength = 20), 
