@@ -27,22 +27,17 @@ The current version of the algorithm is reasonably sufficient to extract first l
 
 ## Data preparation
 
-1.  Identify the data of interest. While the intent of the `priorrx` table is to capture
-treatments prior to study start and the `treatment` is to capture on study treatments,
-this does not always happen. A good practice is to stack both tables to create a
-full treatment history and filter on dates when relevant.
-
- * Overall line of therapy: stack `priorrx_derived` and `treatment_derived` tables to create a full listing of prior and current treatments.
+ * Overall line of therapy: use `ca_cm_derived` table for a full listing of prior and current treatments.
  
- * On study line of therapy: either use `treatment_derived` tables or stack `priorrx_derived` and `treatment_derived` and filter on treatments that occur after the consent date.
+ * On study line of therapy: either use `ca_cm_derived` and filter on treatments that occur after the consent date.
  
  * Disease state line of therapy: researchers may be interested in line of therapy after a specific
- disease state diagnosis, like mHSPC. If so, stack `priorrx_derived` and `treatment_derived` and filter on treatments
+ disease state diagnosis, like mHSPC. If so, use `ca_cm_derived` and filter on treatments
  that occur after the disease state diagnosis.
  
-2.  Remove rows with `priorrx_treatment_category`/`trt_treatment_category` equal to any of "ADT", "Bisphosphonates", "Steroid", as these are generally not considered a standalone line of therapy.
+1.  Remove rows with `trt_treatment_category` equal to any of "ADT", "Bisphosphonates", "Steroid", as these are generally not considered a standalone line of therapy.
 
-3.  If no start date is listed, remove the row from consideration; future data cuts will hopefully be queried and have more information available.
+2.  If no start date is listed, remove the row from consideration; future data cuts will hopefully be queried and have more information available.
 
 
 ## Line of therapy algorithm
@@ -75,16 +70,15 @@ library(ironer)
 # stack prior treatments with on study treatments
 # rename variables to match between two data sets
 treatment_prep <- 
-    medidata$ca_cm_derived %>% 
+    medidata$ca_cm_derived |>  
       select(
         subject, treatment, exstdat_int, exendat_int, 
         treatment_recode = trt_treatment_recode, treatment_category = trt_treatment_category
-      ) 
-  ) %>%
+      ) |> 
   # remove entries with missing start date
   filter(!is.na(exstdat_int)) %>% 
   # remove treatments not counted as a line of therapy
-  filter(!trt_treatment_category %in% c("Steroid", "Bone-Modifying Agent", "Bisphosphonates", "Antidiabetic")) |> 
+  filter(!treatment_category %in% c("Steroid", "Bone-Modifying Agent", "Bisphosphonates", "Antidiabetic")) |> 
   # keep relevant fields
  select(subject, exstdat_int, exendat_int, treatment_category, treatment_recode)
 ```
@@ -118,11 +112,11 @@ tibble::tribble(
 
 ```{r, eval=FALSE, echo=TRUE}
 # assign line of therapy 
-treatment_lot <- treatment_prep %>% 
+treatment_lot <- treatment_prep |>  
   # sort by subject and treatment start date
-  arrange(subject, exstdat_int) %>%
+  arrange(subject, exstdat_int) |> 
   # within each subject, assign line of therapy
-  group_by(subject) %>%
+  group_by(subject) |> 
   group_modify(~ ironer::assign_lot(
     .data = .x, 
     # note, you could use treatment_category here as well to get a high level

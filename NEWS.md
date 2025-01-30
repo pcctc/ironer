@@ -1,3 +1,29 @@
+# ironer 0.1.1 [2025-01-30]
+
+* README
+
+  + `priorrx` (prior treatments) `treatment` (cancer treatments) consolidated into
+  a single form `ca_cm` (cancer treatments). 
+  
+* Data Dictionary
+
+  + Added the `sf` table
+  
+* Line of therapy
+  
+  + `priorrx` (prior treatments) `treatment` (cancer treatments) consolidated into
+  a single form `ca_cm` (cancer treatments). 
+  
+  + Adjusted text throughout article to account for the form migration
+
+* Overall
+
+  + made minor text adjustments across site
+
+
+
+
+
 # ironer 0.1.0 [2024-06-20]
 
 * Medidata data
