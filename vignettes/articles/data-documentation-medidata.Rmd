@@ -50,13 +50,13 @@ dictionary_medidata %>%
 ## Date imputation
 
 A single date field is generally captured in 6 variables.
-For example, in the `treatment` table the field `exstdat` (treatment start date) there is:
+For example, in the `ca_cm` and `ca_cm_derived` tables the field `exstdat` (treatment start date) there is:
 
 | Variable      | Description                                                                              | Type      | Contains imputed values? |
 |----------------|-------------------------|----------------|----------------|
 | `exstdat`     | Start date with any unknown month/day/year as a missing value                            | Date      | No                       |
 | `exstdat_raw` | Start date in format `DD MMM YYYY`; unknown fields are represented with `un`/`UN`        | Character | No                       |
-| `exstdat_int` | Start date where unknown month or day are imputed as `1`; unknown year imputed as `1900` | Date      | Yes                      |
+| `exstdat_int` | Start date where unknown month or day are imputed as `1`; unknown year imputed as `NA`   | Date      | Yes                      |
 | `exstdat_yyy` | Year of start date; unknown year is missing                                              | Numeric   | No                       |
 | `exstdat_mm`  | Month of start date; unknown month is missing                                            | Numeric   | No                       |
 | `exstdat_dd`  | Day of start date; unknown day is missing                                                | Numeric   | No                       |
@@ -64,7 +64,7 @@ For example, in the `treatment` table the field `exstdat` (treatment start date)
 ## Treatments
 
 
-As of June 2024, all cancer treatments are consolidated into a single data frame (`ca_cm`).
+As of June 2024, all cancer treatments are consolidated into a single data frame (`ca_cm`, `ca_cm_derived`).
 
 Each of these forms in the EDC (electronic data capture) are log line forms; 
 `record_position` is the order of entry in the form, but does not represent anything 
@@ -90,7 +90,7 @@ This master list is created by identifying not yet mapped treatments and then pe
 The treatment mapping is continuously updated.
 
 Standardized treatment mapping is contained in `ca_cm_derived`.
-These two tables contain all information in the original `ca_cm` table, and additionally provides:
+This table contain all information in the original `ca_cm` table, and additionally provides:
 
 -   `treatment_lower`: entry in lower case
 
@@ -170,4 +170,4 @@ The Physician Questionnaires have changed over time under different protocols.
 1.  **Are genetic testing results available?**
 
 IRONMAN started collecting genetic testing reports in November 2022. These are now 
-available in the pf` (sequencing reports) and `gf` (genomics findings) tables.
+available in the `pf` (sequencing reports) and `gf` (genomics findings) tables.
