@@ -18,7 +18,7 @@
 
 * Overall
 
-  + made minor text adjust across site
+  + made minor text adjustments across site
 
 
 
