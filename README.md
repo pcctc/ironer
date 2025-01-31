@@ -95,5 +95,4 @@ The data in the {ironer} package is in progress and subject to change.
 - `treatment_map` represents the treatment mappings from the original
   raw data to standardized & recoded treatment assignments. If a mapping
   needs to be corrected or added, please file an issue or contact PCCTC.
-  Note that this mapping should already be in the `priorrx_derived` and
-  `treatment_derived` tables.
+  Note that this mapping should already be in the `ca_cm_derived` table.
