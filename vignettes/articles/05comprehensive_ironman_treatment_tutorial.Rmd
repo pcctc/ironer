@@ -1,5 +1,8 @@
 ---
 title: "Comprehensive Ironman Treatment Tutorial"
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
 ```{r, include = FALSE}
@@ -21,52 +24,65 @@ library(ironer)
 library(reactable)
 ```
 
-
-```{r, echo=FALSE}
-# import list of data frames exported from medidata
-lst_medidata <- lst_blind_medidata
-
-```
-
 # Overview of treatment data
 
 Treatment data is collected in two independent forms:\
 
-1. Cancer treatments (`ca_cm`)\
+1.  Cancer treatments (`ca_cm`)\
 
-2. Physician questionnaires ([multiple versions implemented across protocols](https://pcctc.github.io/ironer/articles/data-documentation-medidata.html#physician-questionnaires))\
+2.  Physician questionnaires ([multiple versions implemented across
+    protocols](https://pcctc.github.io/ironer/articles/data-documentation-medidata.html#physician-questionnaires))\
 
-Data capture differs between the forms; as the forms are independent, treatments may not align across the forms. The Data Management team monitors this and issues queries to improve alignment. Your Ironman research question should inform which source of treatment data to use, and if it is useful to combine the two sources of treatment information.
+Data capture differs between the forms; as the forms are independent,
+treatments may not align across the forms. The Data Management team
+monitors this and issues queries to improve alignment. Your Ironman
+research question should inform which source of treatment data to use,
+and if it is useful to combine the two sources of treatment information.
 
 ## Cancer treatments (`ca_cm`)
 
-Cancer treatments represent treatments that occurred both prior to study enrollment and on study. Data is collected as log lines, with one row per treatment. Cancer treatments could be used for any time-to-event analyses where exact start and stop date of treatments is required.
+Cancer treatments represent treatments that occurred both prior to study
+enrollment and on study. Data is collected as log lines, with one row
+per treatment. Cancer treatments could be used for any time-to-event
+analyses where exact start and stop date of treatments is required.
 
-Each entry includes treatment name, start date, stop date, modification reason, discontinuation reason, and indication. Indication was added June 2024 when the prior and on study treatment forms were consolidated to a single form.
+Each entry includes treatment name, start date, stop date, modification
+reason, discontinuation reason, and indication. Indication was added
+June 2024 when the prior and on study treatment forms were consolidated
+to a single form.
 
-The `ca_cm` table represents the raw cancer treatment data collected in medidata. The `ca_cm_derived` table additionally contains higher level treatment categories, standardized treatment coding, and flags for taxels and NHAs (novel hormonal agents).
+The `ca_cm` table represents the raw cancer treatment data collected in
+medidata. The `ca_cm_derived` table additionally contains higher level
+treatment categories, standardized treatment coding, and flags for
+taxels and NHAs (novel hormonal agents).
 
 ### Additional considerations for analysis:
 
-1. It could be assumed that all patients on anti-androgen are simultaneously on ADT, 
-even if ADT is not reported. Note this may vary globally.
+1.  It could be assumed that all patients on anti-androgen are
+    simultaneously on ADT, even if ADT is not reported. Note this may
+    vary globally.
 
-2. It could be assumed that a patient is continuing ADT if it was ever marked as "so far".
+2.  It could be assumed that a patient is continuing ADT if it was ever
+    marked as "so far".
 
-3. It could be assumed that patients with mHSPC are on ADT, even if not marked. 
-This can be cross checked against treatments.
+3.  It could be assumed that patients with mHSPC are on ADT, even if not
+    marked. This can be cross checked against treatments.
 
-4. If a systemic treatment is listed in "so far" but "starting" is blank, the visit associated with "so far" treatment could be imputed as their initial on study treatment.
+4.  If a systemic treatment is listed in "so far" but "starting" is
+    blank, the visit associated with "so far" treatment could be imputed
+    as their initial on study treatment.
 
-5. Consider ignoring external beam radiation therapy in treatment regimen. (“We often will have patients with mHSPC get radiation to a painful lesion or something along with starting systemic therapy.)
+5.  Consider ignoring external beam radiation therapy in treatment
+    regimen. ("We often will have patients with mHSPC get radiation to a
+    painful lesion or something along with starting systemic therapy.)
 
-6. There is data on orchiectomies in the `prsurg` and `surg` tables that can be incorporated.
-
+6.  There is data on orchiectomies in the `prsurg` and `surg` tables
+    that can be incorporated.
 
 ### Gather minimal data from cancer treatments form
 
 ```{r}
-df_treatments_all <- lst_medidata$ca_cm_derived |> 
+df_treatments_all <- lst_blind_medidata$ca_cm_derived |> 
   select(
     subject,
     treatment = trt_treatment_recode,
@@ -81,12 +97,12 @@ df_treatments_all <- lst_medidata$ca_cm_derived |>
 
 ```
 
-Here is an example of what the data looks like for a single patient. Dates have been shifted to protect the patient's identity.
+Here is an example of what the data looks like for a single patient.
+Dates have been shifted to protect the patient's identity.
 
 ```{r, echo=FALSE, results=TRUE}
 df_treatments_all |>
-  filter(subject == "1")|>
-  select(-subject)|>
+  filter(subject == "1") |> 
   mutate(dt_treatment_start = dt_treatment_start,
          dt_treatment_end = dt_treatment_end) |>
   reactable()
@@ -95,7 +111,9 @@ df_treatments_all |>
 
 ### Treatments and treatment categories
 
-Depending on your research question, you may want to exclude treatments or treatment categories that are not relevant for your analysis. The table below displays all treatments and their categorization.
+Depending on your research question, you may want to exclude treatments
+or treatment categories that are not relevant for your analysis. The
+table below displays all treatments and their categorization.
 
 ```{r}
 df_treatments_all |>
@@ -103,16 +121,19 @@ df_treatments_all |>
   reactable()
 ```
 
-Be aware that the ADT (Androgen Deprivation Therapy) treatment classification includes
-LHRH agonists, LHRH antagonists, and anti-androgens. Depending on your research question,
-you may want to implement a different treatment classification that more narrowly
+Be aware that the ADT (Androgen Deprivation Therapy) treatment
+classification includes LHRH agonists, LHRH antagonists, and
+anti-androgens. Depending on your research question, you may want to
+implement a different treatment classification that more narrowly
 defines ADTs of interest.
 
 ### Removing ineligible treatments
 
-Occasionally treatments that are not specifically cancer treatments are entered in medidata. The following code excludes treatment categories that are not specific to prostate cancer. This
-list should be regularly assessed to ensure it is up to date and accurate as new
-data gets entered.
+Occasionally treatments that are not specifically cancer treatments are
+entered in medidata. The following code excludes treatment categories
+that are not specific to prostate cancer. This list should be regularly
+assessed to ensure it is up to date and accurate as new data gets
+entered.
 
 ```{r}
 # vector of treatment categories that are not specifically prostate cancer treatments
@@ -128,13 +149,12 @@ df_treatments_pc <- df_treatments_all |>
   filter(!treatment_category %in% trt_category_exclude)
 ```
 
-
 ### Collapsing consecutive treatments
 
-Occasionally treatments are entered on different log lines but with no break
-between the treatment end date and the next treatment start date. For example, consider
-this subject history which shows Bicalutamide continuing between rows 5 and 6,
-and then again between rows 7 and 8. 
+Occasionally treatments are entered on different log lines but with no
+break between the treatment end date and the next treatment start date.
+For example, consider this subject history which shows Bicalutamide
+continuing between rows 5 and 6, and then again between rows 7 and 8.
 
 ```{r, echo=FALSE}
 tibble::tribble(
@@ -150,8 +170,8 @@ tibble::tribble(
      )
 ```
 
-For analysis purposes, this could be considered a single treatment of Bicalutamide 
-represented by 6 rows instead of 8. 
+For analysis purposes, this could be considered a single treatment of
+Bicalutamide represented by 6 rows instead of 8.
 
 ```{r, echo=FALSE}
 tibble::tribble(
@@ -165,8 +185,8 @@ tibble::tribble(
      )
 ```
 
-This code will collapse consecutive or overlapping records
-of the same treatment. 
+This code will collapse consecutive or overlapping records of the same
+treatment.
 
 ```{r}
 df_treatments_pc_collapsed <- df_treatments_pc |> 
@@ -216,34 +236,41 @@ df_treatments_pc_collapsed <- df_treatments_pc |>
 
 ### Assigning Line of Therapy (LOT)
 
-The treatments form captures individual treatments, but does not capture if treatments
-are administered simultaneously or line of therapy (LOT) for that treatment.
+The treatments form captures individual treatments, but does not capture
+if treatments are administered simultaneously or line of therapy (LOT)
+for that treatment.
 
-The line of the therapy for a given treatment can be approximately derived using
-the [`ironer::assign_lot`](https://pcctc.github.io/ironer/reference/assign_lot.html) function.
-Treatments are considered to be in the same LOT if their start dates are within 30 days. Treatment end dates are not considered in defining LOTs.
+The line of the therapy for a given treatment can be approximately
+derived using the
+[`ironer::assign_lot`](https://pcctc.github.io/ironer/reference/assign_lot.html)
+function. Treatments are considered to be in the same LOT if their start
+dates are within 30 days. Treatment end dates are not considered in
+defining LOTs.
 
 **Considerations:**
 
 -   ADT usage
 
-    - ADT is not consistently captured, and the documentation or usage of ADT varies globally.
-    
-    - About 50% of mHSPC patients have ADT documented in the database.
-    
-    - You could consider excluding ADT when creating lines of therapy, and assume ADT usage 
-    even if not documented.
+    -   ADT is not consistently captured, and the documentation or usage
+        of ADT varies globally.
 
--   The code below considers all treatments initiated within 90 days of enrollment as per protocol patients must be enrolled within 90 days of starting systemic treatment. This can be modified as needed.
+    -   About 50% of mHSPC patients have ADT documented in the database.
 
--   The function can be used to assign line of therapy based on either the treatment category or the specific treatment itself. 
+    -   You could consider excluding ADT when creating lines of therapy,
+        and assume ADT usage even if not documented.
 
+-   The code below considers all treatments initiated within 90 days of
+    enrollment as per protocol patients must be enrolled within 90 days
+    of starting systemic treatment. This can be modified as needed.
+
+-   The function can be used to assign line of therapy based on either
+    the treatment category or the specific treatment itself.
 
 ```{r}
 # identify on study treatments
 df_treatments_onstudy <- df_treatments_pc_collapsed |>
   # include consent date in order to exclude treatments >90 days before enrollment
-  left_join(lst_medidata$ic |> select(subject, cnstdate_int), by = "subject") |>
+  left_join(lst_blind_medidata$ic |> select(subject, cnstdate_int), by = "subject") |>
   mutate(
     # day of treatment relative to consent date
     trt_day_rel_consent = dt_treatment_start - cnstdate_int,
@@ -306,158 +333,318 @@ df_lot <- df_lot_trt |>
   arrange(subject, lot_on_study, dt_lot_start)
 ```
 
-Here is an example of what the LOT data looks like for a single patient. 
+Here is an example of what the LOT data looks like for a single patient.
 Dates have been shifted to protect the patient's identity.
 
 ```{r, echo=FALSE, results=TRUE}
 
 df_lot |>   
   filter(subject=="1")|>   
-  select(-subject)|>   
   mutate(dt_lot_start = dt_lot_start,          
          dt_lot_last_obs = dt_lot_last_obs) |>
-  reactable()
+  reactable(
+    defaultColDef = colDef(
+            headerStyle = list(whiteSpace = "nowrap")
+          )
+  )
 ```
 
 ## Treatments from Physician Questionnaires (PQ)
 
-The Physician Questionnaire (PQ) should be completed by the treating physician at
-baseline and at every 3-month visit. Each questionnaire asks what treatments the
-patient has received so far and which treatments the patient is starting. There are
-currently five versions of the PQ that must be combined for analysis (PQs were amended
-at various protocol amendments). Each version is a separate table in the database 
-with different variable names. The following table shows the questions and responses 
-for each version of the PQ.
+The Physician Questionnaire (PQ) should be completed by the treating
+physician at baseline and at every 3-month visit. Each questionnaire
+asks what treatments the patient has received so far and which
+treatments the patient is starting. There are currently five versions of
+the PQ that must be combined for analysis (PQs were amended at various
+protocol amendments). Each version is a separate table in the database
+with different variable names. The following table shows the questions
+and responses for each version of the PQ.
 
-PQ treatments are useful to assess the cross-sectional association between treatment
-and other PQ or PROM measures that are linked to a visit. There are no specific dates
-for treatment in the PQ, so it is challenging to use them for time-to-event analyses. 
+PQ treatments are useful to assess the cross-sectional association
+between treatment and other PQ or PROM measures that are linked to a
+visit. There are no specific dates for treatment in the PQ, so it is
+challenging to use them for time-to-event analyses.
 
+The date the PQ was entered in the edc is in the field `record_date`
+(though this does not necessarily correspond to the date the PQ was
+completed by the physician). Each PQ is associated with a visit (like
+`Baseline`, `Month 3`, etc), and those visit dates could be brought in
+from the `cyc_date` form.
 
-The date the PQ was entered in the edc is in the field `record_date` (though
-this does not necessarily correspond to the date the PQ was completed by the 
-physician). Each PQ is associated with a visit (like `Baseline`, `Month 3`, etc),
-and those visit dates could be brought in from the `cyc_date` form.
-
-+------------------+-------------------+------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------+
-| PQ version       | Table in Database | Questions asked                                                                                                                          | Responses                                                                        |
-+==================+===================+==========================================================================================================================================+==================================================================================+
-| Versions 1 and 2 | pq                | Please list this patient’s CURRENT / CHANGE IN TREATMENT(S)                                                                              | Open text field                                                                  |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   | Are you planning on continuing androgen deprivation therapy for this patient?                                                            | Yes/No                                                                           |
-+------------------+-------------------+------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------+
-| Version 3        | new_pq            | What systemic treatments has your patient previously received for his prostate cancer? Choose all that apply.                            | -   Androgen deprivation therapy (surgical castration, LH-RH agonist/antagonist) |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   | What treatment is your patient starting? May select more than one if in combination                                                      |     -   option for first question only                                           |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Enzalutamide                                                                 |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Abiraterone acetate                                                          |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Docetaxel chemotherapy                                                       |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Radium-223 dichloride                                                        |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Sipuleucel-T                                                                 |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Cabazitaxel chemotherapy                                                     |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Bicalutamide, or other anti-androgen                                         |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Clinical Trial                                                               |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Other \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_                                         |
-+------------------+-------------------+------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------+
-| Version 4        | new_pq_v4         | What systemic treatment(s) has your patient received so far and which one(s) is he starting now? In both columns, choose all that apply. | -   Abiraterone                                                                  |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Androgen deprivation (LHRH, surgical)                                        |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Apalutamide                                                                  |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Bicalutamide or other anti-androgen                                          |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Cabazitaxel                                                                  |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Clinical trial                                                               |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Docetaxel                                                                    |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Enzalutamide                                                                 |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   External beam radiation therapy for metastatic disease                       |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Radium-223                                                                   |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Sipuleucel-T                                                                 |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Other cancer-directed therapy (e.g., mitoxantrone)                           |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Symptom-oriented therapy only (e.g., analgesics)                             |
-+------------------+-------------------+------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------+
-| Version 5        | new_pq_v5         | What systemic treatment(s) has your patient received so far and which one(s) is he starting now? In both columns, choose all that apply.  | -   Abiraterone                                                                  |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Androgen deprivation (LHRH, surgical)                                        |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Apalutamide                                                                  |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Bicalutamide or other anti-androgen                                          |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Cabazitaxel                                                                  |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Clinical trial                                                               |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Docetaxel                                                                    |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Enzalutamide                                                                 |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   External beam radiation therapy for metastatic disease                       |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Radium-223                                                                   |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Sipuleucel-T                                                                 |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Other cancer-directed therapy (e.g., mitoxantrone)                           |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Symptom-oriented therapy only (e.g., analgesics)                             |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Darolutamide                                                                 |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Niraparib                                                                    |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Olaparib                                                                     |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Rucaparib                                                                    |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Talazoparib                                                                  |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   Pembrolizumab                                                                |
-|                  |                   |                                                                                                                                          |                                                                                  |
-|                  |                   |                                                                                                                                          | -   177Lu-PSMA-617                                                               |
-+------------------+-------------------+------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------+
-
-
++------------+------------+-------------------------+------------+
+| PQ version | Table in   | Questions asked         | Responses  |
+|            | Database   |                         |            |
++============+============+=========================+============+
+| Versions 1 | pq         | Please list this        | Open text  |
+| and 2      |            | patient's CURRENT /     | field      |
+|            |            | CHANGE IN TREATMENT(S)  |            |
+|            |            |                         | Yes/No     |
+|            |            | Are you planning on     |            |
+|            |            | continuing androgen     |            |
+|            |            | deprivation therapy for |            |
+|            |            | this patient?           |            |
++------------+------------+-------------------------+------------+
+| Version 3  | new_pq     | What systemic           | -          |
+|            |            | treatments has your     |   Androgen |
+|            |            | patient previously      |            |
+|            |            | received for his        | d          |
+|            |            | prostate cancer? Choose | eprivation |
+|            |            | all that apply.         | therapy    |
+|            |            |                         | (surgical  |
+|            |            | What treatment is your  |            |
+|            |            | patient starting? May   | c          |
+|            |            | select more than one if | astration, |
+|            |            | in combination          | LH-RH      |
+|            |            |                         | agonis     |
+|            |            |                         | t/a        |
+|            |            |                         | ntagonist) |
+|            |            |                         |            |
+|            |            |                         | -   option |
+|            |            |                         |     for    |
+|            |            |                         |     first  |
+|            |            |                         |            |
+|            |            |                         |   question |
+|            |            |                         |     only   |
+|            |            |                         | -   En     |
+|            |            |                         | zalutamide |
+|            |            |                         | -   A      |
+|            |            |                         | biraterone |
+|            |            |                         |            |
+|            |            |                         |    acetate |
+|            |            |                         | -          |
+|            |            |                         |  Docetaxel |
+|            |            |                         |            |
+|            |            |                         | ch         |
+|            |            |                         | emotherapy |
+|            |            |                         |            |
+|            |            |                         | -          |
+|            |            |                         | Radium-223 |
+|            |            |                         |            |
+|            |            |                         |            |
+|            |            |                         | dichloride |
+|            |            |                         |            |
+|            |            |                         | -   Si     |
+|            |            |                         | puleucel-T |
+|            |            |                         |            |
+|            |            |                         | -   C      |
+|            |            |                         | abazitaxel |
+|            |            |                         |            |
+|            |            |                         |     ch     |
+|            |            |                         | emotherapy |
+|            |            |                         |            |
+|            |            |                         | -   Bic    |
+|            |            |                         | alutamide, |
+|            |            |                         |     or     |
+|            |            |                         |     other  |
+|            |            |                         |            |
+|            |            |                         | ant        |
+|            |            |                         | i-androgen |
+|            |            |                         |            |
+|            |            |                         | -          |
+|            |            |                         |   Clinical |
+|            |            |                         |     Trial  |
+|            |            |                         |            |
+|            |            |                         | -   Other  |
+|            |            |                         |     \_\_   |
+|            |            |                         |     \_\    |
+|            |            |                         | _\_\_\_\_\ |
+|            |            |                         |     \_\_   |
+|            |            |                         | \_\_\_\_\_ |
++------------+------------+-------------------------+------------+
+| Version 4  | n ew_pq_v4 | What systemic           | -   A      |
+|            |            | treatment(s) has your   | biraterone |
+|            |            | patient received so far |            |
+|            |            | and which one(s) is he  | -          |
+|            |            | starting now? In both   |   Androgen |
+|            |            | columns, choose all     |            |
+|            |            | that apply.             | d          |
+|            |            |                         | eprivation |
+|            |            |                         | (LHRH,     |
+|            |            |                         | surgical)  |
+|            |            |                         |            |
+|            |            |                         | -   A      |
+|            |            |                         | palutamide |
+|            |            |                         |            |
+|            |            |                         | -   Bi     |
+|            |            |                         | calutamide |
+|            |            |                         |     or     |
+|            |            |                         |     other  |
+|            |            |                         |            |
+|            |            |                         | ant        |
+|            |            |                         | i-androgen |
+|            |            |                         |            |
+|            |            |                         | -   C      |
+|            |            |                         | abazitaxel |
+|            |            |                         |            |
+|            |            |                         | -          |
+|            |            |                         |   Clinical |
+|            |            |                         |     trial  |
+|            |            |                         |            |
+|            |            |                         | -          |
+|            |            |                         |  Docetaxel |
+|            |            |                         |            |
+|            |            |                         | -   En     |
+|            |            |                         | zalutamide |
+|            |            |                         |            |
+|            |            |                         | -          |
+|            |            |                         |   External |
+|            |            |                         |     beam   |
+|            |            |                         |            |
+|            |            |                         |  radiation |
+|            |            |                         |            |
+|            |            |                         |    therapy |
+|            |            |                         |     for    |
+|            |            |                         |            |
+|            |            |                         | metastatic |
+|            |            |                         | disease    |
+|            |            |                         |            |
+|            |            |                         | -          |
+|            |            |                         | Radium-223 |
+|            |            |                         |            |
+|            |            |                         | -   Si     |
+|            |            |                         | puleucel-T |
+|            |            |                         |            |
+|            |            |                         | -   Other  |
+|            |            |                         |     ca     |
+|            |            |                         |     nce    |
+|            |            |                         | r-directed |
+|            |            |                         |            |
+|            |            |                         |    therapy |
+|            |            |                         |     (e.g., |
+|            |            |                         |            |
+|            |            |                         | mit        |
+|            |            |                         | oxantrone) |
+|            |            |                         |            |
+|            |            |                         | -   Sym    |
+|            |            |                         |     pto    |
+|            |            |                         | m-oriented |
+|            |            |                         |            |
+|            |            |                         |    therapy |
+|            |            |                         |     only   |
+|            |            |                         |     (e.g., |
+|            |            |                         |            |
+|            |            |                         | a          |
+|            |            |                         | nalgesics) |
++------------+------------+-------------------------+------------+
+| Version 5  | n ew_pq_v5 | What systemic           | -   A      |
+|            |            | treatment(s) has your   | biraterone |
+|            |            | patient received so far |            |
+|            |            | and which one(s) ishe   | -          |
+|            |            | starting now? In both   |   Androgen |
+|            |            | columns, choose all     |            |
+|            |            | that apply.             | d          |
+|            |            |                         | eprivation |
+|            |            |                         | (LHRH,     |
+|            |            |                         | surgical)  |
+|            |            |                         |            |
+|            |            |                         | -   A      |
+|            |            |                         | palutamide |
+|            |            |                         |            |
+|            |            |                         | -   Bi     |
+|            |            |                         | calutamide |
+|            |            |                         |     or     |
+|            |            |                         |     other  |
+|            |            |                         |            |
+|            |            |                         | ant        |
+|            |            |                         | i-androgen |
+|            |            |                         |            |
+|            |            |                         | -   C      |
+|            |            |                         | abazitaxel |
+|            |            |                         |            |
+|            |            |                         | -          |
+|            |            |                         |   Clinical |
+|            |            |                         |     trial  |
+|            |            |                         |            |
+|            |            |                         | -          |
+|            |            |                         |  Docetaxel |
+|            |            |                         |            |
+|            |            |                         | -   En     |
+|            |            |                         | zalutamide |
+|            |            |                         |            |
+|            |            |                         | -          |
+|            |            |                         |   External |
+|            |            |                         |     beam   |
+|            |            |                         |            |
+|            |            |                         |  radiation |
+|            |            |                         |            |
+|            |            |                         |    therapy |
+|            |            |                         |     for    |
+|            |            |                         |            |
+|            |            |                         | metastatic |
+|            |            |                         | disease    |
+|            |            |                         |            |
+|            |            |                         | -          |
+|            |            |                         | Radium-223 |
+|            |            |                         |            |
+|            |            |                         | -   Si     |
+|            |            |                         | puleucel-T |
+|            |            |                         |            |
+|            |            |                         | -   Other  |
+|            |            |                         |     ca     |
+|            |            |                         |     nce    |
+|            |            |                         | r-directed |
+|            |            |                         |            |
+|            |            |                         |    therapy |
+|            |            |                         |     (e.g., |
+|            |            |                         |            |
+|            |            |                         | mit        |
+|            |            |                         | oxantrone) |
+|            |            |                         |            |
+|            |            |                         | -   Sym    |
+|            |            |                         |     pto    |
+|            |            |                         | m-oriented |
+|            |            |                         |            |
+|            |            |                         |    therapy |
+|            |            |                         |     only   |
+|            |            |                         |     (e.g., |
+|            |            |                         |            |
+|            |            |                         | a          |
+|            |            |                         | nalgesics) |
+|            |            |                         |            |
+|            |            |                         | -   Da     |
+|            |            |                         | rolutamide |
+|            |            |                         |            |
+|            |            |                         | -          |
+|            |            |                         |  Niraparib |
+|            |            |                         |            |
+|            |            |                         | -          |
+|            |            |                         |   Olaparib |
+|            |            |                         |            |
+|            |            |                         | -          |
+|            |            |                         |  Rucaparib |
+|            |            |                         |            |
+|            |            |                         | -   T      |
+|            |            |                         | alazoparib |
+|            |            |                         |            |
+|            |            |                         | -   Pem    |
+|            |            |                         | brolizumab |
+|            |            |                         |            |
+|            |            |                         | -   1      |
+|            |            |                         |     77L    |
+|            |            |                         | u-PSMA-617 |
++------------+------------+-------------------------+------------+
 
 ### PQ version 1 and 2
 
-Protocol versions 1 and 2 use the same version of the physician questionnaire.
-Due to the open text nature, it is challenging to standardize treatments.
+Protocol versions 1 and 2 use the same version of the physician
+questionnaire. Due to the open text nature, it is challenging to
+standardize treatments.
 
 ```{r}
 # use variable naming conventions that align with other pq aggregations
-df_pq1 <- lst_medidata$pq |> 
+df_pq1 <- lst_blind_medidata$pq |> 
   mutate(pq_version = "pq1") |> 
   select(pq_version, subject, instance_name, treatment = pq1, continuing_adt = pq2) 
 ```
 
-
 ### PQ version 3
 
-For PQ3, pull data in two separate steps: one for so far treatments and one for
-starting treatments. Then combine.
+For PQ3, pull data in two separate steps: one for so far treatments and
+one for starting treatments. Then combine.
 
 ```{r}
 # Retrieve so far treatments
-df_pq3_sofar <- lst_medidata$new_pq |>
+df_pq3_sofar <- lst_blind_medidata$new_pq |>
   select(subject, instance_name, matches("^newpq_4[a-i]$"), newpq_4iab, -contains("raw")) |> 
   # standardize treatment name through label
   labelled::set_variable_labels(
@@ -489,7 +676,7 @@ df_pq3_sofar <- lst_medidata$new_pq |>
   relocate(sofar_Other, .after = last_col())
 
 # Retrieve starting treatments
-df_pq3_starting <- lst_medidata$new_pq |>
+df_pq3_starting <- lst_blind_medidata$new_pq |>
   select(subject, instance_name, matches("^newpq_5[a-h]"), newpq_5ia, -contains("raw")) |> 
   # standardize treatment name through label
   labelled::set_variable_labels(
@@ -528,7 +715,7 @@ df_pq3 <- df_pq3_sofar |>
 ### PQ version 4
 
 ```{r}
-df_pq4 <- lst_medidata$new_pq_v4 |>
+df_pq4 <- lst_blind_medidata$new_pq_v4 |>
   select(subject, instance_name, matches("^newpq14[a-m]_v4"), -contains(c("std"))) |> 
   labelled::set_variable_labels(
     newpq14b_v4 = "ADT",
@@ -565,7 +752,7 @@ df_pq4 <- lst_medidata$new_pq_v4 |>
 ### PQ version 5
 
 ```{r}
-df_pq5 <- lst_medidata$new_pq_v5 |>
+df_pq5 <- lst_blind_medidata$new_pq_v5 |>
   select(subject, instance_name, matches("^newpq14[a-u,]_v5"), -contains(c("std", "14n"))) |> 
   labelled::set_variable_labels(
     newpq14b_v5 = "ADT",
@@ -597,11 +784,11 @@ df_pq5 <- lst_medidata$new_pq_v5 |>
   select(subject, instance_name, starts_with("sofar"), starts_with("starting"))
 ```
 
-### Combine data from all PQs 
+### Combine data from all PQs
 
-This creates a wide data set combining PQs versions 3, 4 and 5 with a set of 
-columns for treatments continuing so far and treatment that are starting.
-
+This creates a wide data set combining PQs versions 3, 4 and 5 with a
+set of columns for treatments continuing so far and treatment that are
+starting.
 
 ```{r}
 # stack the three questionnaires 
@@ -635,7 +822,7 @@ df_pq_345 <- bind_rows(
 Identify the date associated with visits.
 
 ```{r}
-df_visit_date <- lst_medidata$cyc_date |> 
+df_visit_date <- lst_blind_medidata$cyc_date |> 
   select(subject, instance_name, visit_date) |> 
   # remove observations with missing date
   filter(!is.na(visit_date)) |> 
@@ -643,7 +830,7 @@ df_visit_date <- lst_medidata$cyc_date |>
   distinct()
 ```
 
-Create a data frame with information from all available PQs. 
+Create a data frame with information from all available PQs.
 
 ```{r}
 df_pq_long <- df_pq_345 |> 
@@ -667,5 +854,16 @@ df_pq_long <- df_pq_345 |>
 
 ```
 
+Here is an example of what the combined pq data looks like for a single
+patient.
 
+```{r, echo=FALSE, results=TRUE}
 
+df_pq_long |>   
+  filter(subject=="66")|> 
+  reactable(
+    defaultColDef = colDef(
+            headerStyle = list(whiteSpace = "nowrap")
+          )
+  )
+```
