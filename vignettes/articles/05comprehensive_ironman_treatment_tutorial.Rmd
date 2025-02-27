@@ -105,7 +105,12 @@ df_treatments_all |>
   filter(subject == "1") |> 
   mutate(dt_treatment_start = dt_treatment_start,
          dt_treatment_end = dt_treatment_end) |>
-  reactable()
+  reactable(
+    resizable = TRUE,
+    defaultColDef = colDef(
+            minWidth = 190
+          )
+  )
   
 ```
 
@@ -118,7 +123,9 @@ table below displays all treatments and their categorization.
 ```{r}
 df_treatments_all |>
   count(treatment_category, treatment) |> 
-  reactable()
+  reactable(
+    resizable = TRUE
+  )
 ```
 
 Be aware that the ADT (Androgen Deprivation Therapy) treatment
@@ -343,9 +350,9 @@ df_lot |>
   mutate(dt_lot_start = dt_lot_start,          
          dt_lot_last_obs = dt_lot_last_obs) |>
   reactable(
+    resizable = TRUE,
     defaultColDef = colDef(
-            minWidth = 150,
-            #headerStyle = list(whiteSpace = "nowrap", )
+            minWidth = 180
           )
   )
 ```
@@ -707,7 +714,8 @@ df_pq_long |>
   filter(subject=="66")|> 
   reactable(
     defaultColDef = colDef(
-            headerStyle = list(whiteSpace = "nowrap")
+      resizable = TRUE,
+            minWidth = 170
           )
   )
 ```
