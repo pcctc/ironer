@@ -11,14 +11,14 @@ knitr::opts_chunk$set(
 
 ```{r, warning=FALSE, echo=FALSE, message=FALSE}
 # load packages
-library(tidyverse)
+library(dplyr)
+library(tidyr)
 library(lubridate)
 library(labelled)
 library(stringr)
 library(janitor)
 library(ironer)
 library(reactable)
-library(dsverse)
 ```
 
 
