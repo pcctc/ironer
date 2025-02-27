@@ -3,7 +3,7 @@
 #' A dataset containing treatment mapping specific to PCCTC studies, intended
 #' to be updated regularly. If a mapping needs to be corrected or added,
 #' please file an issue or contact PCCTC. Note that this mapping should already
-#' be in the `priorrx_derived` and `treatment_derived` tables.
+#' be in the `ca_cm_derived` table.
 #'
 #' @format A data frame with 5 variables:
 #' \describe{
@@ -59,3 +59,20 @@
 "dictionary_proms"
 
 
+#' Blinded Sample Medidata
+#'
+#' Randomized blinded sample of 100 subjects from medidata
+#'
+#' @format A list of 7 data frames:
+#' \describe{
+#'   \item{ic}{Consent table}
+#'   \item{ca_cm_derived}{Treatment table with mapping}
+#'   \item{cyc_date}{Visit Date Table}
+#'   \item{pq}{PQ version 1 & 2}
+#'   \item{new_pq}{PQ version 3}
+#'   \item{new_pq_v4}{PQ version 4}
+#'   \item{new_pq_v5}{PQ version 5}
+#' }
+#' @examples
+#' head(lst_blind_medidata)
+"lst_blind_medidata"
