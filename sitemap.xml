@@ -1,11 +1,12 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://pcctc.github.io/ironer/404.html</loc></url>
 <url><loc>https://pcctc.github.io/ironer/LICENSE.html</loc></url>
-<url><loc>https://pcctc.github.io/ironer/articles/data-documentation-medidata.html</loc></url>
-<url><loc>https://pcctc.github.io/ironer/articles/data-documentation-proms.html</loc></url>
+<url><loc>https://pcctc.github.io/ironer/articles/01data-documentation-medidata.html</loc></url>
+<url><loc>https://pcctc.github.io/ironer/articles/02data-documentation-proms.html</loc></url>
+<url><loc>https://pcctc.github.io/ironer/articles/03line-of-therapy.html</loc></url>
+<url><loc>https://pcctc.github.io/ironer/articles/04treatment-mapping.html</loc></url>
+<url><loc>https://pcctc.github.io/ironer/articles/05comprehensive_ironman_treatment_tutorial.html</loc></url>
 <url><loc>https://pcctc.github.io/ironer/articles/index.html</loc></url>
-<url><loc>https://pcctc.github.io/ironer/articles/line-of-therapy.html</loc></url>
-<url><loc>https://pcctc.github.io/ironer/articles/treatment-mapping.html</loc></url>
 <url><loc>https://pcctc.github.io/ironer/authors.html</loc></url>
 <url><loc>https://pcctc.github.io/ironer/index.html</loc></url>
 <url><loc>https://pcctc.github.io/ironer/news/index.html</loc></url>
@@ -14,6 +15,7 @@
 <url><loc>https://pcctc.github.io/ironer/reference/dictionary_medidata.html</loc></url>
 <url><loc>https://pcctc.github.io/ironer/reference/dictionary_proms.html</loc></url>
 <url><loc>https://pcctc.github.io/ironer/reference/index.html</loc></url>
+<url><loc>https://pcctc.github.io/ironer/reference/lst_blind_medidata.html</loc></url>
 <url><loc>https://pcctc.github.io/ironer/reference/pipe.html</loc></url>
 <url><loc>https://pcctc.github.io/ironer/reference/treatment_map.html</loc></url>
 </urlset>
