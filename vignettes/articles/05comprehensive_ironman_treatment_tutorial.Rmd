@@ -344,7 +344,8 @@ df_lot |>
          dt_lot_last_obs = dt_lot_last_obs) |>
   reactable(
     defaultColDef = colDef(
-            headerStyle = list(whiteSpace = "nowrap")
+            minWidth = 150,
+            #headerStyle = list(whiteSpace = "nowrap", )
           )
   )
 ```
@@ -371,258 +372,101 @@ completed by the physician). Each PQ is associated with a visit (like
 `Baseline`, `Month 3`, etc), and those visit dates could be brought in
 from the `cyc_date` form.
 
-+------------+------------+-------------------------+------------+
-| PQ version | Table in   | Questions asked         | Responses  |
-|            | Database   |                         |            |
-+============+============+=========================+============+
-| Versions 1 | pq         | Please list this        | Open text  |
-| and 2      |            | patient's CURRENT /     | field      |
-|            |            | CHANGE IN TREATMENT(S)  |            |
-|            |            |                         | Yes/No     |
-|            |            | Are you planning on     |            |
-|            |            | continuing androgen     |            |
-|            |            | deprivation therapy for |            |
-|            |            | this patient?           |            |
-+------------+------------+-------------------------+------------+
-| Version 3  | new_pq     | What systemic           | -          |
-|            |            | treatments has your     |   Androgen |
-|            |            | patient previously      |            |
-|            |            | received for his        | d          |
-|            |            | prostate cancer? Choose | eprivation |
-|            |            | all that apply.         | therapy    |
-|            |            |                         | (surgical  |
-|            |            | What treatment is your  |            |
-|            |            | patient starting? May   | c          |
-|            |            | select more than one if | astration, |
-|            |            | in combination          | LH-RH      |
-|            |            |                         | agonis     |
-|            |            |                         | t/a        |
-|            |            |                         | ntagonist) |
-|            |            |                         |            |
-|            |            |                         | -   option |
-|            |            |                         |     for    |
-|            |            |                         |     first  |
-|            |            |                         |            |
-|            |            |                         |   question |
-|            |            |                         |     only   |
-|            |            |                         | -   En     |
-|            |            |                         | zalutamide |
-|            |            |                         | -   A      |
-|            |            |                         | biraterone |
-|            |            |                         |            |
-|            |            |                         |    acetate |
-|            |            |                         | -          |
-|            |            |                         |  Docetaxel |
-|            |            |                         |            |
-|            |            |                         | ch         |
-|            |            |                         | emotherapy |
-|            |            |                         |            |
-|            |            |                         | -          |
-|            |            |                         | Radium-223 |
-|            |            |                         |            |
-|            |            |                         |            |
-|            |            |                         | dichloride |
-|            |            |                         |            |
-|            |            |                         | -   Si     |
-|            |            |                         | puleucel-T |
-|            |            |                         |            |
-|            |            |                         | -   C      |
-|            |            |                         | abazitaxel |
-|            |            |                         |            |
-|            |            |                         |     ch     |
-|            |            |                         | emotherapy |
-|            |            |                         |            |
-|            |            |                         | -   Bic    |
-|            |            |                         | alutamide, |
-|            |            |                         |     or     |
-|            |            |                         |     other  |
-|            |            |                         |            |
-|            |            |                         | ant        |
-|            |            |                         | i-androgen |
-|            |            |                         |            |
-|            |            |                         | -          |
-|            |            |                         |   Clinical |
-|            |            |                         |     Trial  |
-|            |            |                         |            |
-|            |            |                         | -   Other  |
-|            |            |                         |     \_\_   |
-|            |            |                         |     \_\    |
-|            |            |                         | _\_\_\_\_\ |
-|            |            |                         |     \_\_   |
-|            |            |                         | \_\_\_\_\_ |
-+------------+------------+-------------------------+------------+
-| Version 4  | n ew_pq_v4 | What systemic           | -   A      |
-|            |            | treatment(s) has your   | biraterone |
-|            |            | patient received so far |            |
-|            |            | and which one(s) is he  | -          |
-|            |            | starting now? In both   |   Androgen |
-|            |            | columns, choose all     |            |
-|            |            | that apply.             | d          |
-|            |            |                         | eprivation |
-|            |            |                         | (LHRH,     |
-|            |            |                         | surgical)  |
-|            |            |                         |            |
-|            |            |                         | -   A      |
-|            |            |                         | palutamide |
-|            |            |                         |            |
-|            |            |                         | -   Bi     |
-|            |            |                         | calutamide |
-|            |            |                         |     or     |
-|            |            |                         |     other  |
-|            |            |                         |            |
-|            |            |                         | ant        |
-|            |            |                         | i-androgen |
-|            |            |                         |            |
-|            |            |                         | -   C      |
-|            |            |                         | abazitaxel |
-|            |            |                         |            |
-|            |            |                         | -          |
-|            |            |                         |   Clinical |
-|            |            |                         |     trial  |
-|            |            |                         |            |
-|            |            |                         | -          |
-|            |            |                         |  Docetaxel |
-|            |            |                         |            |
-|            |            |                         | -   En     |
-|            |            |                         | zalutamide |
-|            |            |                         |            |
-|            |            |                         | -          |
-|            |            |                         |   External |
-|            |            |                         |     beam   |
-|            |            |                         |            |
-|            |            |                         |  radiation |
-|            |            |                         |            |
-|            |            |                         |    therapy |
-|            |            |                         |     for    |
-|            |            |                         |            |
-|            |            |                         | metastatic |
-|            |            |                         | disease    |
-|            |            |                         |            |
-|            |            |                         | -          |
-|            |            |                         | Radium-223 |
-|            |            |                         |            |
-|            |            |                         | -   Si     |
-|            |            |                         | puleucel-T |
-|            |            |                         |            |
-|            |            |                         | -   Other  |
-|            |            |                         |     ca     |
-|            |            |                         |     nce    |
-|            |            |                         | r-directed |
-|            |            |                         |            |
-|            |            |                         |    therapy |
-|            |            |                         |     (e.g., |
-|            |            |                         |            |
-|            |            |                         | mit        |
-|            |            |                         | oxantrone) |
-|            |            |                         |            |
-|            |            |                         | -   Sym    |
-|            |            |                         |     pto    |
-|            |            |                         | m-oriented |
-|            |            |                         |            |
-|            |            |                         |    therapy |
-|            |            |                         |     only   |
-|            |            |                         |     (e.g., |
-|            |            |                         |            |
-|            |            |                         | a          |
-|            |            |                         | nalgesics) |
-+------------+------------+-------------------------+------------+
-| Version 5  | n ew_pq_v5 | What systemic           | -   A      |
-|            |            | treatment(s) has your   | biraterone |
-|            |            | patient received so far |            |
-|            |            | and which one(s) ishe   | -          |
-|            |            | starting now? In both   |   Androgen |
-|            |            | columns, choose all     |            |
-|            |            | that apply.             | d          |
-|            |            |                         | eprivation |
-|            |            |                         | (LHRH,     |
-|            |            |                         | surgical)  |
-|            |            |                         |            |
-|            |            |                         | -   A      |
-|            |            |                         | palutamide |
-|            |            |                         |            |
-|            |            |                         | -   Bi     |
-|            |            |                         | calutamide |
-|            |            |                         |     or     |
-|            |            |                         |     other  |
-|            |            |                         |            |
-|            |            |                         | ant        |
-|            |            |                         | i-androgen |
-|            |            |                         |            |
-|            |            |                         | -   C      |
-|            |            |                         | abazitaxel |
-|            |            |                         |            |
-|            |            |                         | -          |
-|            |            |                         |   Clinical |
-|            |            |                         |     trial  |
-|            |            |                         |            |
-|            |            |                         | -          |
-|            |            |                         |  Docetaxel |
-|            |            |                         |            |
-|            |            |                         | -   En     |
-|            |            |                         | zalutamide |
-|            |            |                         |            |
-|            |            |                         | -          |
-|            |            |                         |   External |
-|            |            |                         |     beam   |
-|            |            |                         |            |
-|            |            |                         |  radiation |
-|            |            |                         |            |
-|            |            |                         |    therapy |
-|            |            |                         |     for    |
-|            |            |                         |            |
-|            |            |                         | metastatic |
-|            |            |                         | disease    |
-|            |            |                         |            |
-|            |            |                         | -          |
-|            |            |                         | Radium-223 |
-|            |            |                         |            |
-|            |            |                         | -   Si     |
-|            |            |                         | puleucel-T |
-|            |            |                         |            |
-|            |            |                         | -   Other  |
-|            |            |                         |     ca     |
-|            |            |                         |     nce    |
-|            |            |                         | r-directed |
-|            |            |                         |            |
-|            |            |                         |    therapy |
-|            |            |                         |     (e.g., |
-|            |            |                         |            |
-|            |            |                         | mit        |
-|            |            |                         | oxantrone) |
-|            |            |                         |            |
-|            |            |                         | -   Sym    |
-|            |            |                         |     pto    |
-|            |            |                         | m-oriented |
-|            |            |                         |            |
-|            |            |                         |    therapy |
-|            |            |                         |     only   |
-|            |            |                         |     (e.g., |
-|            |            |                         |            |
-|            |            |                         | a          |
-|            |            |                         | nalgesics) |
-|            |            |                         |            |
-|            |            |                         | -   Da     |
-|            |            |                         | rolutamide |
-|            |            |                         |            |
-|            |            |                         | -          |
-|            |            |                         |  Niraparib |
-|            |            |                         |            |
-|            |            |                         | -          |
-|            |            |                         |   Olaparib |
-|            |            |                         |            |
-|            |            |                         | -          |
-|            |            |                         |  Rucaparib |
-|            |            |                         |            |
-|            |            |                         | -   T      |
-|            |            |                         | alazoparib |
-|            |            |                         |            |
-|            |            |                         | -   Pem    |
-|            |            |                         | brolizumab |
-|            |            |                         |            |
-|            |            |                         | -   1      |
-|            |            |                         |     77L    |
-|            |            |                         | u-PSMA-617 |
-+------------+------------+-------------------------+------------+
++------------------+-------------------+------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------+
+| PQ version       | Table in Database | Questions asked                                                                                                                          | Responses                                                                        |
++==================+===================+==========================================================================================================================================+==================================================================================+
+| Versions 1 and 2 | pq                | Please list this patient’s CURRENT / CHANGE IN TREATMENT(S)                                                                              | Open text field                                                                  |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   | Are you planning on continuing androgen deprivation therapy for this patient?                                                            | Yes/No                                                                           |
++------------------+-------------------+------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------+
+| Version 3        | new_pq            | What systemic treatments has your patient previously received for his prostate cancer? Choose all that apply.                            | -   Androgen deprivation therapy (surgical castration, LH-RH agonist/antagonist) |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   | What treatment is your patient starting? May select more than one if in combination                                                      |     -   option for first question only                                           |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Enzalutamide                                                                 |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Abiraterone acetate                                                          |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Docetaxel chemotherapy                                                       |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Radium-223 dichloride                                                        |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Sipuleucel-T                                                                 |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Cabazitaxel chemotherapy                                                     |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Bicalutamide, or other anti-androgen                                         |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Clinical Trial                                                               |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Other \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_                                         |
++------------------+-------------------+------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------+
+| Version 4        | new_pq_v4         | What systemic treatment(s) has your patient received so far and which one(s) is he starting now? In both columns, choose all that apply. | -   Abiraterone                                                                  |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Androgen deprivation (LHRH, surgical)                                        |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Apalutamide                                                                  |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Bicalutamide or other anti-androgen                                          |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Cabazitaxel                                                                  |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Clinical trial                                                               |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Docetaxel                                                                    |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Enzalutamide                                                                 |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   External beam radiation therapy for metastatic disease                       |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Radium-223                                                                   |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Sipuleucel-T                                                                 |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Other cancer-directed therapy (e.g., mitoxantrone)                           |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Symptom-oriented therapy only (e.g., analgesics)                             |
++------------------+-------------------+------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------+
+| Version 5        | new_pq_v5         | What systemic treatment(s) has your patient received so far and which one(s) ishe starting now? In both columns, choose all that apply.  | -   Abiraterone                                                                  |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Androgen deprivation (LHRH, surgical)                                        |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Apalutamide                                                                  |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Bicalutamide or other anti-androgen                                          |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Cabazitaxel                                                                  |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Clinical trial                                                               |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Docetaxel                                                                    |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Enzalutamide                                                                 |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   External beam radiation therapy for metastatic disease                       |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Radium-223                                                                   |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Sipuleucel-T                                                                 |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Other cancer-directed therapy (e.g., mitoxantrone)                           |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Symptom-oriented therapy only (e.g., analgesics)                             |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Darolutamide                                                                 |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Niraparib                                                                    |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Olaparib                                                                     |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Rucaparib                                                                    |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Talazoparib                                                                  |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Pembrolizumab                                                                |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   177Lu-PSMA-617                                                               |
++------------------+-------------------+------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------+
 
 ### PQ version 1 and 2
 
