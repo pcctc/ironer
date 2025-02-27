@@ -319,7 +319,7 @@ df_lot |>
   reactable()
 ```
 
-## Treatments from Physician Questionnaires (PQ)
+# Treatments from Physician Questionnaires (PQ)
 
 The Physician Questionnaire (PQ) should be completed by the treating physician at
 baseline and at every 3-month visit. Each questionnaire asks what treatments the
