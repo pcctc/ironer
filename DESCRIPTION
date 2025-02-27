@@ -1,12 +1,13 @@
 Package: ironer
 Title: Convenience Functions for the IRONMAN Study
-Version: 0.1.1
+Version: 0.1.2
 Authors@R: c(
-    person("Shannon", "Pileggi", , "pileggis@mskcc.org", role = c("cre", "aut"),
+    person("Shannon", "Pileggi", , "pileggis@mskcc.org", role = c("aut"),
            comment = c(ORCID = "0000-0002-7732-4164")),
     person("Travis", "Gerke", , "gerket@mskcc.org", role = "aut",
-           comment = c(ORCID = "0000-0002-9500-8907"))
-  )
+           comment = c(ORCID = "0000-0002-9500-8907")),
+    person("Patrick", "Freeman", , "freemaj3@mskcc.org", role = c("cre", "aut"))
+    )
 Description: This set of functions aims to make IRONMAN-related workflows
     easier, both for internal reproducibility and for data
     scientists/analysts operating under external data use agreements.
@@ -27,7 +28,9 @@ Imports:
     magrittr,
     stringr,
     tibble,
-    tidyr
+    tidyr,
+    sjlabelled,
+    reactable
 Suggests: 
     covr,
     rmarkdown
@@ -36,4 +39,4 @@ Remotes:
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.1
+RoxygenNote: 7.3.1

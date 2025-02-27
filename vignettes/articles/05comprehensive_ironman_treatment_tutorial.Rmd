@@ -1,0 +1,721 @@
+---
+title: "Comprehensive Ironman Treatment Tutorial"
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r, warning=FALSE, echo=FALSE, message=FALSE}
+# load packages
+library(dplyr)
+library(tidyr)
+library(lubridate)
+library(labelled)
+library(stringr)
+library(janitor)
+library(ironer)
+library(reactable)
+```
+
+# Overview of treatment data
+
+Treatment data is collected in two independent forms:\
+
+1.  Cancer treatments (`ca_cm`)\
+
+2.  Physician questionnaires ([multiple versions implemented across
+    protocols](https://pcctc.github.io/ironer/articles/data-documentation-medidata.html#physician-questionnaires))\
+
+Data capture differs between the forms; as the forms are independent,
+treatments may not align across the forms. The Data Management team
+monitors this and issues queries to improve alignment. Your Ironman
+research question should inform which source of treatment data to use,
+and if it is useful to combine the two sources of treatment information.
+
+# Cancer treatments (`ca_cm`)
+
+Cancer treatments represent treatments that occurred both prior to study
+enrollment and on study. Data is collected as log lines, with one row
+per treatment. Cancer treatments could be used for any time-to-event
+analyses where exact start and stop date of treatments is required.
+
+Each entry includes treatment name, start date, stop date, modification
+reason, discontinuation reason, and indication. Indication was added
+June 2024 when the prior and on study treatment forms were consolidated
+to a single form.
+
+The `ca_cm` table represents the raw cancer treatment data collected in
+medidata. The `ca_cm_derived` table additionally contains higher level
+treatment categories, standardized treatment coding, and flags for
+taxels and NHAs (novel hormonal agents).
+
+### Additional considerations for analysis:
+
+1.  It could be assumed that all patients on anti-androgen are
+    simultaneously on ADT, even if ADT is not reported. Note this may
+    vary globally.
+
+2.  It could be assumed that a patient is continuing ADT if it was ever
+    marked as "so far".
+
+3.  It could be assumed that patients with mHSPC are on ADT, even if not
+    marked. This can be cross checked against treatments.
+
+4.  If a systemic treatment is listed in "so far" but "starting" is
+    blank, the visit associated with "so far" treatment could be imputed
+    as their initial on study treatment.
+
+5.  Consider ignoring external beam radiation therapy in treatment
+    regimen. ("We often will have patients with mHSPC get radiation to a
+    painful lesion or something along with starting systemic therapy.)
+
+6.  There is data on orchiectomies in the `prsurg` and `surg` tables
+    that can be incorporated.
+
+### Gather minimal data from cancer treatments form
+
+```{r}
+df_treatments_all <- lst_blind_medidata$ca_cm_derived |> 
+  select(
+    subject,
+    treatment = trt_treatment_recode,
+    dt_treatment_start = exstdat_int,
+    dt_treatment_end = exendat_int,
+    treatment_category = trt_treatment_category
+  ) |> 
+  # remove blank treatments
+  filter(!is.na(treatment))|>
+  # sort by treatment start date within subject
+  arrange(subject, dt_treatment_start)
+
+```
+
+Here is an example of what the data looks like for a single patient.
+Dates have been shifted to protect the patient's identity.
+
+```{r, echo=FALSE, results=TRUE}
+df_treatments_all |>
+  filter(subject == "1") |> 
+  mutate(dt_treatment_start = dt_treatment_start,
+         dt_treatment_end = dt_treatment_end) |>
+  reactable(
+    resizable = TRUE,
+    defaultColDef = colDef(
+            minWidth = 190
+          )
+  )
+  
+```
+
+### Treatments and treatment categories
+
+Depending on your research question, you may want to exclude treatments
+or treatment categories that are not relevant for your analysis. The
+table below displays all treatments and their categorization.
+
+```{r}
+df_treatments_all |>
+  count(treatment_category, treatment) |> 
+  reactable(
+    resizable = TRUE
+  )
+```
+
+Be aware that the ADT (Androgen Deprivation Therapy) treatment
+classification includes LHRH agonists, LHRH antagonists, and
+anti-androgens. Depending on your research question, you may want to
+implement a different treatment classification that more narrowly
+defines ADTs of interest.
+
+### Removing ineligible treatments
+
+Occasionally treatments that are not specifically cancer treatments are
+entered in medidata. The following code excludes treatment categories
+that are not specific to prostate cancer. This list should be regularly
+assessed to ensure it is up to date and accurate as new data gets
+entered.
+
+```{r}
+# vector of treatment categories that are not specifically prostate cancer treatments
+# and could be excluded from analysis of prostate cancer specific treatments
+trt_category_exclude <- c(
+  "Steroid", "Antidiabetic", "Antilipemic", "Nutraceuticals", "Bone-Modifying Agent",
+  "Bisphosphonates", "Nutraceutical", "Nutraceutical/Placebo", "Placebo", "COX-2 Inhibitor"
+  )
+
+# create a new data frame that represents prostate cancer (pc) treatments only 
+df_treatments_pc <- df_treatments_all |>
+  # exclude these drug classes
+  filter(!treatment_category %in% trt_category_exclude)
+```
+
+### Collapsing consecutive treatments
+
+Occasionally treatments are entered on different log lines but with no
+break between the treatment end date and the next treatment start date.
+For example, consider this subject history which shows Bicalutamide
+continuing between rows 5 and 6, and then again between rows 7 and 8.
+
+```{r, echo=FALSE}
+tibble::tribble(
+     ~row,     ~treatment, ~dt_treatment_start, ~dt_treatment_end,
+       1L, "Bicalutamide",        "2001-04-09",      "2003-04-01",
+       2L, "Bicalutamide",        "2008-06-01",      "2008-09-01",
+       3L, "Bicalutamide",        "2009-06-24",      "2009-12-01",
+       4L, "Bicalutamide",        "2010-10-08",      "2011-06-01",
+       5L, "Bicalutamide",        "2012-09-01",      "2013-11-26",
+       6L, "Bicalutamide",        "2013-11-26",      "2014-12-01",
+       7L, "Bicalutamide",        "2015-01-01",      "2016-07-26",
+       8L, "Bicalutamide",        "2016-07-27",      "2017-04-04"
+     )
+```
+
+For analysis purposes, this could be considered a single treatment of
+Bicalutamide represented by 6 rows instead of 8.
+
+```{r, echo=FALSE}
+tibble::tribble(
+     ~row,     ~treatment, ~dt_treatment_start, ~dt_treatment_end,
+       1L, "Bicalutamide",        "2001-04-09",      "2003-04-01",
+       2L, "Bicalutamide",        "2008-06-01",      "2008-09-01",
+       3L, "Bicalutamide",        "2009-06-24",      "2009-12-01",
+       4L, "Bicalutamide",        "2010-10-08",      "2011-06-01",
+       5L, "Bicalutamide",        "2012-09-01",      "2014-12-01",
+       6L, "Bicalutamide",        "2015-01-01",      "2017-04-04"
+     )
+```
+
+This code will collapse consecutive or overlapping records of the same
+treatment.
+
+```{r}
+df_treatments_pc_collapsed <- df_treatments_pc |> 
+   arrange(
+     subject, 
+     treatment,
+     dt_treatment_start, 
+     desc(dt_treatment_end)
+     ) |>
+  mutate(
+    # examine each treatment within a subject
+    .by = c(subject, treatment),
+    # create a flag that represents truly unique lines of treatment
+    flag_unique_line = case_when(
+      # the first record represents a unique line
+      row_number() == 1 ~ TRUE,
+      # if treatment start date is after the previous treatment end date plus one,
+      # then we assume it represents a new line for that treatment.
+      dt_treatment_start > lag(dt_treatment_end) + 1 ~ TRUE,
+      # otherwise, if the treatment start date occurs before the previous treatment 
+      # end date plus one, this is not a unique line
+      dt_treatment_start <= lag(dt_treatment_end) + 1 ~ FALSE,
+      # for instance of missing start or end date, the default value will assume a new new line
+      .default = TRUE),
+    # create a grouping variable that represents the total number of unique lines
+    group = cumsum(flag_unique_line),
+  ) |> 
+  # # examine each treatment grouping within a subject
+  # for overlapping entries for a drug, take the earlier start date and later end date
+  mutate(
+    .by = c(subject, treatment, group),
+    dt_treatment_start_group = first(dt_treatment_start, na_rm = TRUE),
+    dt_treatment_end_group = last(dt_treatment_end, na_rm = TRUE)
+  ) |> 
+  distinct(
+    subject, 
+    treatment, 
+    dt_treatment_start = dt_treatment_start_group, 
+    dt_treatment_end = dt_treatment_end_group, 
+    treatment_category
+  ) |> 
+  arrange(
+    subject, dt_treatment_start
+  )
+
+```
+
+### Assigning Line of Therapy (LOT)
+
+The treatments form captures individual treatments, but does not capture
+if treatments are administered simultaneously or line of therapy (LOT)
+for that treatment.
+
+The line of the therapy for a given treatment can be approximately
+derived using the
+[`ironer::assign_lot`](https://pcctc.github.io/ironer/reference/assign_lot.html)
+function. Treatments are considered to be in the same LOT if their start
+dates are within 30 days. Treatment end dates are not considered in
+defining LOTs.
+
+**Considerations:**
+
+-   ADT usage
+
+    -   ADT is not consistently captured, and the documentation or usage
+        of ADT varies globally.
+
+    -   About 50% of mHSPC patients have ADT documented in the database.
+
+    -   You could consider excluding ADT when creating lines of therapy,
+        and assume ADT usage even if not documented.
+
+-   The code below considers all treatments initiated within 90 days of
+    enrollment as per protocol patients must be enrolled within 90 days
+    of starting systemic treatment. This can be modified as needed.
+
+-   The function can be used to assign line of therapy based on either
+    the treatment category or the specific treatment itself.
+
+```{r}
+# identify on study treatments
+df_treatments_onstudy <- df_treatments_pc_collapsed |>
+  # include consent date in order to exclude treatments >90 days before enrollment
+  left_join(lst_blind_medidata$ic |> select(subject, cnstdate_int), by = "subject") |>
+  mutate(
+    # day of treatment relative to consent date
+    trt_day_rel_consent = dt_treatment_start - cnstdate_int,
+    # consider treatment to be on study if within 90 days of consent date
+    trt_on_study = if_else(trt_day_rel_consent >= -90, TRUE, FALSE)
+  ) |> 
+  # retain only on study treatments
+  filter(trt_on_study)
+```
+
+Identify first line of therapy on study.
+
+```{r}
+# assign LOT while on study, by treatment category
+# be patient, this takes a bit to run
+# the result is the same dimension as the input data, i.e., one row per treatment
+df_lot_trt <- df_treatments_onstudy |> 
+  arrange(subject, dt_treatment_start) |>
+  group_by(subject) |>
+  group_modify(~ assign_lot(
+    .x, treatment_category, dt_treatment_start, dt_treatment_end
+  )) |>
+  ungroup() 
+
+# modify the result to be one row per line of therapy
+# additionally retain all treatments in that line of therapy 
+df_lot <- df_lot_trt |> 
+  select(
+    subject, 
+    cnstdate_int,
+    treatment,
+    lot_on_study = lot, 
+    regimen_on_study = regimen, 
+    dt_lot_start, 
+    dt_lot_last_obs
+  ) |> 
+  # occasionally, identical treatments are consecutive and estimated to be part of 
+  # the same LOT. distinct() here reduces the identical and consecutive treatments
+  # to one row
+  distinct() |>
+  # create an indicator for observed treatments, to be used in pivot
+  mutate(trt_ind = 1) |> 
+  # create a single variable that represents all treatment in LOT
+  arrange(subject, lot_on_study, treatment) |> 
+  group_by(subject, lot_on_study) |> 
+  mutate(trt_on_study = str_c(treatment, collapse = ", "), .after = regimen_on_study) |> 
+  ungroup() |> 
+  # this makes treatment columns show in alphabetical order in the pivot step
+  arrange(treatment) |> 
+  # wrangle the data from long to wide to create 1 row per LOT, with indicators
+  # for each individual treatment
+  pivot_wider(
+    # creates column names from the pivot
+    names_from = treatment,
+    # observed treatments are given a value of 1
+    values_from = trt_ind,
+    # treatments not observed are filled with a value of 0
+    values_fill = 0
+    ) |> 
+  arrange(subject, lot_on_study, dt_lot_start)
+```
+
+Here is an example of what the LOT data looks like for a single patient.
+Dates have been shifted to protect the patient's identity.
+
+```{r, echo=FALSE, results=TRUE}
+
+df_lot |>   
+  filter(subject=="1")|>   
+  mutate(dt_lot_start = dt_lot_start,          
+         dt_lot_last_obs = dt_lot_last_obs) |>
+  reactable(
+    resizable = TRUE,
+    defaultColDef = colDef(
+            minWidth = 180
+          )
+  )
+```
+
+# Treatments from Physician Questionnaires (PQ)
+
+The Physician Questionnaire (PQ) should be completed by the treating
+physician at baseline and at every 3-month visit. Each questionnaire
+asks what treatments the patient has received so far and which
+treatments the patient is starting. There are currently five versions of
+the PQ that must be combined for analysis (PQs were amended at various
+protocol amendments). Each version is a separate table in the database
+with different variable names. The following table shows the questions
+and responses for each version of the PQ.
+
+PQ treatments are useful to assess the cross-sectional association
+between treatment and other PQ or PROM measures that are linked to a
+visit. There are no specific dates for treatment in the PQ, so it is
+challenging to use them for time-to-event analyses.
+
+The date the PQ was entered in the edc is in the field `record_date`
+(though this does not necessarily correspond to the date the PQ was
+completed by the physician). Each PQ is associated with a visit (like
+`Baseline`, `Month 3`, etc), and those visit dates could be brought in
+from the `cyc_date` form.
+
++------------------+-------------------+------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------+
+| PQ version       | Table in Database | Questions asked                                                                                                                          | Responses                                                                        |
++==================+===================+==========================================================================================================================================+==================================================================================+
+| Versions 1 and 2 | pq                | Please list this patient’s CURRENT / CHANGE IN TREATMENT(S)                                                                              | Open text field                                                                  |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   | Are you planning on continuing androgen deprivation therapy for this patient?                                                            | Yes/No                                                                           |
++------------------+-------------------+------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------+
+| Version 3        | new_pq            | What systemic treatments has your patient previously received for his prostate cancer? Choose all that apply.                            | -   Androgen deprivation therapy (surgical castration, LH-RH agonist/antagonist) |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   | What treatment is your patient starting? May select more than one if in combination                                                      |     -   option for first question only                                           |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Enzalutamide                                                                 |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Abiraterone acetate                                                          |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Docetaxel chemotherapy                                                       |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Radium-223 dichloride                                                        |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Sipuleucel-T                                                                 |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Cabazitaxel chemotherapy                                                     |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Bicalutamide, or other anti-androgen                                         |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Clinical Trial                                                               |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Other \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_                                         |
++------------------+-------------------+------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------+
+| Version 4        | new_pq_v4         | What systemic treatment(s) has your patient received so far and which one(s) is he starting now? In both columns, choose all that apply. | -   Abiraterone                                                                  |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Androgen deprivation (LHRH, surgical)                                        |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Apalutamide                                                                  |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Bicalutamide or other anti-androgen                                          |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Cabazitaxel                                                                  |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Clinical trial                                                               |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Docetaxel                                                                    |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Enzalutamide                                                                 |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   External beam radiation therapy for metastatic disease                       |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Radium-223                                                                   |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Sipuleucel-T                                                                 |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Other cancer-directed therapy (e.g., mitoxantrone)                           |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Symptom-oriented therapy only (e.g., analgesics)                             |
++------------------+-------------------+------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------+
+| Version 5        | new_pq_v5         | What systemic treatment(s) has your patient received so far and which one(s) ishe starting now? In both columns, choose all that apply.  | -   Abiraterone                                                                  |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Androgen deprivation (LHRH, surgical)                                        |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Apalutamide                                                                  |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Bicalutamide or other anti-androgen                                          |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Cabazitaxel                                                                  |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Clinical trial                                                               |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Docetaxel                                                                    |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Enzalutamide                                                                 |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   External beam radiation therapy for metastatic disease                       |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Radium-223                                                                   |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Sipuleucel-T                                                                 |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Other cancer-directed therapy (e.g., mitoxantrone)                           |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Symptom-oriented therapy only (e.g., analgesics)                             |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Darolutamide                                                                 |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Niraparib                                                                    |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Olaparib                                                                     |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Rucaparib                                                                    |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Talazoparib                                                                  |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   Pembrolizumab                                                                |
+|                  |                   |                                                                                                                                          |                                                                                  |
+|                  |                   |                                                                                                                                          | -   177Lu-PSMA-617                                                               |
++------------------+-------------------+------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------+
+
+### PQ version 1 and 2
+
+Protocol versions 1 and 2 use the same version of the physician
+questionnaire. Due to the open text nature, it is challenging to
+standardize treatments.
+
+```{r}
+# use variable naming conventions that align with other pq aggregations
+df_pq1 <- lst_blind_medidata$pq |> 
+  mutate(pq_version = "pq1") |> 
+  select(pq_version, subject, instance_name, treatment = pq1, continuing_adt = pq2) 
+```
+
+### PQ version 3
+
+For PQ3, pull data in two separate steps: one for so far treatments and
+one for starting treatments. Then combine.
+
+```{r}
+# Retrieve so far treatments
+df_pq3_sofar <- lst_blind_medidata$new_pq |>
+  select(subject, instance_name, matches("^newpq_4[a-i]$"), newpq_4iab, -contains("raw")) |> 
+  # standardize treatment name through label
+  labelled::set_variable_labels(
+    newpq_4a = "ADT",
+    newpq_4c = "Abiraterone",
+    newpq_4d = "Docetaxel",
+    newpq_4e = "Radium-223",
+    newpq_4g = "Cabazitaxel",
+    newpq_4h = "Anti-androgen",
+    newpq_4i = "Clinical trial", # to standardize name across other PQs
+    subject = NULL,
+    instance_name = NULL,
+    newpq_4iab = "sofar_Other"
+  ) |> 
+  # convert label to variable name
+  sjlabelled::label_to_colnames() |> 
+  # create a set of new columns that contain the character string
+  # representing treatment continued so far
+  mutate(
+    across(
+      .cols = -c(subject, instance_name, sofar_Other), 
+      .names = "sofar_{.col}", 
+      .fns = \(x) case_when(
+        x == 1 ~ var_label(x),
+        .default = NA
+    ))
+  ) |> 
+  select(subject, instance_name, contains("sofar")) |> 
+  relocate(sofar_Other, .after = last_col())
+
+# Retrieve starting treatments
+df_pq3_starting <- lst_blind_medidata$new_pq |>
+  select(subject, instance_name, matches("^newpq_5[a-h]"), newpq_5ia, -contains("raw")) |> 
+  # standardize treatment name through label
+  labelled::set_variable_labels(
+    newpq_5b = "Abiraterone",
+    newpq_5c = "Docetaxel",
+    newpq_5d = "Radium-223",
+    newpq_5f = "Cabazitaxel",
+    newpq_5g = "Anti-androgen",
+    newpq_5h = "Clinical trial",  # to standardize name across other PQs
+    subject = NULL,
+    instance_name = NULL,
+    newpq_5ia = "starting_Other",
+  ) |> 
+  # convert label to variable name
+  sjlabelled::label_to_colnames() |> 
+  # create a set of new columns that contain the character string
+  # representing treatment starting
+  mutate(
+    across(
+      .cols = -c(subject, instance_name, starting_Other), 
+      .names = "starting_{.col}", 
+      .fns = \(x) case_when(
+          x == 1 ~ var_label(x),
+        .default = NA
+    ))
+  ) |> 
+  select(subject, instance_name, contains("starting")) |> 
+  relocate(starting_Other, .after = last_col())
+
+# Merge so far and starting treatments
+df_pq3 <- df_pq3_sofar |> 
+  left_join(df_pq3_starting, by = c("subject", "instance_name"))
+
+```
+
+### PQ version 4
+
+```{r}
+df_pq4 <- lst_blind_medidata$new_pq_v4 |>
+  select(subject, instance_name, matches("^newpq14[a-m]_v4"), -contains(c("std"))) |> 
+  labelled::set_variable_labels(
+    newpq14b_v4 = "ADT",
+    newpq14d_v4 = "Anti-androgen",
+    newpq14i_v4 = "EBRT",
+    newpq14m_v4 = "Other",
+    subject = NULL,
+    instance_name = NULL
+  ) |> 
+  sjlabelled::label_to_colnames() |> 
+  mutate(
+    # create a set of columns for so far treatments
+    across(
+      .cols = -c(subject, instance_name), 
+      .names = "sofar_{.col}", 
+      .fns = \(x) case_when(
+          x == "So far" ~ cur_column(),
+        .default = NA
+      )),
+    # create a set of columns for starting treatments
+    across(
+      .cols = -c(subject, instance_name, contains("sofar")), 
+      .names = "starting_{.col}", 
+      .fns = \(x) case_when(
+          x == "Starting now" ~ cur_column(),
+          .default = NA
+      )),
+  ) |> 
+  select(subject, instance_name, starts_with("sofar"), starts_with("starting"))
+
+
+```
+
+### PQ version 5
+
+```{r}
+df_pq5 <- lst_blind_medidata$new_pq_v5 |>
+  select(subject, instance_name, matches("^newpq14[a-u,]_v5"), -contains(c("std", "14n"))) |> 
+  labelled::set_variable_labels(
+    newpq14b_v5 = "ADT",
+    newpq14d_v5 = "Anti-androgen",
+    newpq14i_v5 = "EBRT",
+    newpq14m_v5 = "Other",
+    subject = NULL,
+    instance_name = NULL
+  ) |> 
+  sjlabelled::label_to_colnames() |> 
+  mutate(
+    # create a set of columns for so far treatments
+    across(
+      .cols = -c(subject, instance_name), 
+      .names = "sofar_{.col}", 
+      .fns = \(x) case_when(
+          x == "So far" ~ cur_column(),
+        .default = NA
+      )),
+    # create a set of columns for starting treatments
+    across(
+      .cols = -c(subject, instance_name, contains("sofar")), 
+      .names = "starting_{.col}", 
+      .fns = \(x) case_when(
+          x == "Starting now" ~ cur_column(),
+          .default = NA
+      )),
+  ) |> 
+  select(subject, instance_name, starts_with("sofar"), starts_with("starting"))
+```
+
+### Combine data from all PQs
+
+This creates a wide data set combining PQs versions 3, 4 and 5 with a
+set of columns for treatments continuing so far and treatment that are
+starting.
+
+```{r}
+# stack the three questionnaires 
+df_pq_345 <- bind_rows(
+    "pq3" = df_pq3,
+    "pq4" = df_pq4,
+    "pq5" = df_pq5,
+    # create an identifier displaying questionnaire source
+    .id = "pq_version"
+  ) |> 
+  # clean variable names 
+  janitor::clean_names() |> 
+  # create a single column concatenating all so far treatments
+  unite(
+    starts_with("sofar_"), 
+    col = "sofar_trt", 
+    sep = ", ", 
+    remove = FALSE, 
+    na.rm = TRUE
+    ) |>
+  # create a single column concatenating all starting treatments
+  unite(
+    starts_with("starting_"), 
+    col = "starting_trt", 
+    sep = ", ", 
+    remove = FALSE, 
+    na.rm = TRUE
+    ) 
+```
+
+Identify the date associated with visits.
+
+```{r}
+df_visit_date <- lst_blind_medidata$cyc_date |> 
+  select(subject, instance_name, visit_date) |> 
+  # remove observations with missing date
+  filter(!is.na(visit_date)) |> 
+  # in case of duplicate entries, retain distinct rows
+  distinct()
+```
+
+Create a data frame with information from all available PQs.
+
+```{r}
+df_pq_long <- df_pq_345 |> 
+  select(-c(sofar_trt, starting_trt)) |> 
+  pivot_longer(
+    -c(pq_version, subject, instance_name),
+    names_to = c("status", "pq_coded_trt"),
+    # separate column names by first underscore
+    names_pattern = "^([^_]+)_(.*)",
+    values_to = "treatment",
+    values_drop_na = TRUE
+  ) |> 
+  bind_rows(df_pq1) |> 
+  # join in dates associated with visit
+  left_join(df_visit_date, by = c("subject", "instance_name")) |> 
+  relocate(visit_date, .after = instance_name) |> 
+  arrange(subject, instance_name) |> 
+# in case of duplicate entries caused by the pivot, retain distinct rows
+  distinct()
+
+
+```
+
+Here is an example of what the combined pq data looks like for a single
+patient.
+
+```{r, echo=FALSE, results=TRUE}
+
+df_pq_long |>   
+  filter(subject=="66")|> 
+  reactable(
+    defaultColDef = colDef(
+      resizable = TRUE,
+            minWidth = 170
+          )
+  )
+```

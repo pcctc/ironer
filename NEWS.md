@@ -1,3 +1,10 @@
+# ironer 0.1.2 [2025-02-26]
+
+* Comprehensive Ironman Treatment Tutorial added
+  
+  + blinded data set added and used in tutorial 
+
+
 # ironer 0.1.1 [2025-01-30]
 
 * README

@@ -22,7 +22,7 @@ treatment_map
 A dataset containing treatment mapping specific to PCCTC studies, intended
 to be updated regularly. If a mapping needs to be corrected or added,
 please file an issue or contact PCCTC. Note that this mapping should already
-be in the \code{priorrx_derived} and \code{treatment_derived} tables.
+be in the \code{ca_cm_derived} table.
 }
 \examples{
 print(treatment_map)

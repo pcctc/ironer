@@ -66,6 +66,8 @@ devtools::install_github("pcctc/ironer")
 
 4.  Treatment mapping
 
+5. Comprehensive Ironman Treatment Tutorial
+
 ## Functions
 
 - `assign_lot()` is the function used to assign line of therapy.
