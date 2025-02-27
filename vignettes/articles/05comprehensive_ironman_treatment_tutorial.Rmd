@@ -38,7 +38,7 @@ Treatment data is collected in two independent forms:\
 
 Data capture differs between the forms; as the forms are independent, treatments may not align across the forms. The Data Management team monitors this and issues queries to improve alignment. Your Ironman research question should inform which source of treatment data to use, and if it is useful to combine the two sources of treatment information.
 
-## Cancer treatments (`ca_cm`)
+# Cancer treatments (`ca_cm`)
 
 Cancer treatments represent treatments that occurred both prior to study enrollment and on study. Data is collected as log lines, with one row per treatment. Cancer treatments could be used for any time-to-event analyses where exact start and stop date of treatments is required.
 
