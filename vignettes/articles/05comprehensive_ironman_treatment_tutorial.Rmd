@@ -39,7 +39,7 @@ monitors this and issues queries to improve alignment. Your Ironman
 research question should inform which source of treatment data to use,
 and if it is useful to combine the two sources of treatment information.
 
-## Cancer treatments (`ca_cm`)
+# Cancer treatments (`ca_cm`)
 
 Cancer treatments represent treatments that occurred both prior to study
 enrollment and on study. Data is collected as log lines, with one row
@@ -349,7 +349,7 @@ df_lot |>
   )
 ```
 
-## Treatments from Physician Questionnaires (PQ)
+# Treatments from Physician Questionnaires (PQ)
 
 The Physician Questionnaire (PQ) should be completed by the treating
 physician at baseline and at every 3-month visit. Each questionnaire

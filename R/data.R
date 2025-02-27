@@ -63,7 +63,7 @@
 #'
 #' Randomized blinded sample of 100 subjects from medidata
 #'
-#' @format A list of 7 data frames:
+#' @format A list of 7 data frames consisting only of variables used in treatment tutorial:
 #' \describe{
 #'   \item{ic}{Consent table}
 #'   \item{ca_cm_derived}{Treatment table with mapping}
