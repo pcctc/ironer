@@ -46,10 +46,7 @@ enrollment and on study. Data is collected as log lines, with one row
 per treatment. Cancer treatments could be used for any time-to-event
 analyses where exact start and stop date of treatments is required.
 
-Each entry includes treatment name, start date, stop date, modification
-reason, discontinuation reason, and indication. Indication was added
-June 2024 when the prior and on study treatment forms were consolidated
-to a single form.
+Each entry includes treatment name, start date, end date, dose, modification reason, discontinuation reason, indication, and is this treatment a part of a clinical trial. Indication and is this treatment a part of a clinical trial was added June 2024 when the prior and on study treatment forms were consolidated to a single form.
 
 The `ca_cm` table represents the raw cancer treatment data collected in
 medidata. The `ca_cm_derived` table additionally contains higher level
@@ -359,9 +356,7 @@ df_lot |>
 
 # Treatments from Physician Questionnaires (PQ)
 
-The Physician Questionnaire (PQ) should be completed by the treating
-physician at baseline and at every 3-month visit. Each questionnaire
-asks what treatments the patient has received so far and which
+The Physician Questionnaire (PQ) should be completed by the treating physician at baseline and for all treatment changes occurring while on study. Each questionnaire asks what treatments the patient has received so far and which
 treatments the patient is starting. There are currently five versions of
 the PQ that must be combined for analysis (PQs were amended at various
 protocol amendments). Each version is a separate table in the database
@@ -434,7 +429,7 @@ from the `cyc_date` form.
 |                  |                   |                                                                                                                                          |                                                                                  |
 |                  |                   |                                                                                                                                          | -   Symptom-oriented therapy only (e.g., analgesics)                             |
 +------------------+-------------------+------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------+
-| Version 5        | new_pq_v5         | What systemic treatment(s) has your patient received so far and which one(s) ishe starting now? In both columns, choose all that apply.  | -   Abiraterone                                                                  |
+| Versions 5 and 6 | new_pq_v5         | What systemic treatment(s) has your patient received so far and which one(s) ishe starting now? In both columns, choose all that apply.  | -   Abiraterone                                                                  |
 |                  |                   |                                                                                                                                          |                                                                                  |
 |                  |                   |                                                                                                                                          | -   Androgen deprivation (LHRH, surgical)                                        |
 |                  |                   |                                                                                                                                          |                                                                                  |
@@ -600,7 +595,7 @@ df_pq4 <- lst_blind_medidata$new_pq_v4 |>
 
 ```
 
-### PQ version 5
+### PQ version 5 and 6
 
 ```{r}
 df_pq5 <- lst_blind_medidata$new_pq_v5 |>
