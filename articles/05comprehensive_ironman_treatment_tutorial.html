@@ -93,10 +93,11 @@ information.</p>
 study enrollment and on study. Data is collected as log lines, with one
 row per treatment. Cancer treatments could be used for any time-to-event
 analyses where exact start and stop date of treatments is required.</p>
-<p>Each entry includes treatment name, start date, stop date,
-modification reason, discontinuation reason, and indication. Indication
-was added June 2024 when the prior and on study treatment forms were
-consolidated to a single form.</p>
+<p>Each entry includes treatment name, start date, end date, dose,
+modification reason, discontinuation reason, indication, and is this
+treatment a part of a clinical trial. Indication and is this treatment a
+part of a clinical trial was added June 2024 when the prior and on study
+treatment forms were consolidated to a single form.</p>
 <p>The <code>ca_cm</code> table represents the raw cancer treatment data
 collected in medidata. The <code>ca_cm_derived</code> table additionally
 contains higher level treatment categories, standardized treatment
@@ -363,13 +364,13 @@ patient. Dates have been shifted to protect the patient’s identity.</p>
 <h2 id="treatments-from-physician-questionnaires-pq">Treatments from Physician Questionnaires (PQ)<a class="anchor" aria-label="anchor" href="#treatments-from-physician-questionnaires-pq"></a>
 </h2>
 <p>The Physician Questionnaire (PQ) should be completed by the treating
-physician at baseline and at every 3-month visit. Each questionnaire
-asks what treatments the patient has received so far and which
-treatments the patient is starting. There are currently five versions of
-the PQ that must be combined for analysis (PQs were amended at various
-protocol amendments). Each version is a separate table in the database
-with different variable names. The following table shows the questions
-and responses for each version of the PQ.</p>
+physician at baseline and for all treatment changes occurring while on
+study. Each questionnaire asks what treatments the patient has received
+so far and which treatments the patient is starting. There are currently
+five versions of the PQ that must be combined for analysis (PQs were
+amended at various protocol amendments). Each version is a separate
+table in the database with different variable names. The following table
+shows the questions and responses for each version of the PQ.</p>
 <p>PQ treatments are useful to assess the cross-sectional association
 between treatment and other PQ or PROM measures that are linked to a
 visit. There are no specific dates for treatment in the PQ, so it is
@@ -458,7 +459,7 @@ apply.</td>
 </ul></td>
 </tr>
 <tr class="even">
-<td>Version 5</td>
+<td>Versions 5 and 6</td>
 <td>new_pq_v5</td>
 <td>What systemic treatment(s) has your patient received so far and
 which one(s) ishe starting now? In both columns, choose all that
@@ -609,7 +610,7 @@ and one for starting treatments. Then combine.</p>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">subject</span>, <span class="va">instance_name</span>, <span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"sofar"</span><span class="op">)</span>, <span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"starting"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
-<h4 id="pq-version-5">PQ version 5<a class="anchor" aria-label="anchor" href="#pq-version-5"></a>
+<h4 id="pq-version-5-and-6">PQ version 5 and 6<a class="anchor" aria-label="anchor" href="#pq-version-5-and-6"></a>
 </h4>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df_pq5</span> <span class="op">&lt;-</span> <span class="va">lst_blind_medidata</span><span class="op">$</span><span class="va">new_pq_v5</span> <span class="op">|&gt;</span></span>
